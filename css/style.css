@@ -1,0 +1,140 @@
+body {
+  background-color: #f5f5f5;
+}
+
+.provider_status {
+  background: #d3d3d3;
+  padding: 10px;
+  text-align: right;
+}
+.status {
+  display: inline-block;
+  line-height: 36px;
+  margin: 0 15px;
+}
+.status img {
+  margin-right: 1em;
+}
+
+.provider_login {
+  background-color: #f3f3f3;
+  border-top: 1px solid #c7c7c7;
+  border-bottom: 1px solid #e7e7e7;
+  text-align: center;
+}
+
+.login {
+  display: inline-block;
+  margin: 0px auto;
+  width: 410px;
+}
+.login form {
+  background-color: #ffffff;
+  border: 1px solid #e7e7e7;
+  padding: 20px 30px;
+  margin: 40px;
+}
+.login h2 {
+  line-height: 48px;
+  margin-top: 0px;
+  margin-bottom: 20px;
+}
+.login h2 img {
+  margin-right: 0.5em;
+}
+
+.login .help-inline {
+  padding-right: 5px;
+}
+
+.provider_dashboard {
+  padding-top: 15px;
+}
+
+.grouplist {
+  clear: both;
+  column-count: 4;
+  -moz-column-count: 4;
+  -webkit-column-count: 4;
+  column-gap: 0px;
+  -moz-column-gap: 0px;
+  -webkit-column-gap: 0px;
+}
+.group {
+  background: #e3e3e3;
+  border: 1px solid #d7d7d7;
+  border-radius: 10px;
+  column-break-inside: avoid;
+  -moz-column-break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  display: inline-block;
+  margin: 0 5px 15px 5px;
+  padding: 10px 0;
+  width: 450px;
+}
+.group_header {
+  line-height: 36px;
+  padding: 0px 10px;
+}
+.group_header:hover {
+  cursor: pointer;
+}
+.group_header img.avatar {
+  float: left;
+  margin-right: 1em;
+}
+.group_header a {
+  font-size: 1.3em;
+}
+.group_header .actions {
+  float: right;
+}
+.group_header .query_repos {
+  display: none;
+}
+.group_header:hover .query_repos {
+  display: initial;
+}
+
+.repolist {
+  background-color: #f5f5f5;
+  clear: both;
+  margin-top: 5px;
+  overflow: hidden;
+}
+.repo {
+  border-top: 1px solid #d7d7d7;
+}
+.repo_header {
+  padding: 2px 10px;
+}
+.repo_header:hover {
+  background-color: #d2d2e3;
+  cursor: pointer;
+}
+.repo_header .actions {
+  float: right;
+}
+.repo_header .query_issues {
+  display: none;
+}
+.repo_header:hover .query_issues {
+  display: initial;
+}
+.repo_header .badge {
+  margin-left: 5px;
+}
+
+.issuelist {
+  clear: both;
+}
+.issue {
+  border-top: 1px dotted #d7d7d7;;
+  padding: 3px 10px 3px 30px;
+}
+.issue:hover {
+  background-color: #e9e9f5;
+}
+.issue .actions {
+  float: right;
+}

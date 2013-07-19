@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Issues Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet" media="screen" />
+    <link href="css/style.css" rel="stylesheet" media="screen" />
+  </head>
+  <body>
+    <main role="main" id="main"></main>
+
+    <script id="issues-dashboard" type="text/template">
+      <div class="provider_status">
+      </div>
+      <div class="provider_login">
+      </div>
+      <div class="provider_dashboard">
+      </div>
+    </script>
+
+
+    <script id="github-status-not-logged-in" type="text/template">
+      <img src="img/github-mark.png" height="36px" width="36px" alt="" />
+      <span class="login_button btn btn-small">Log in</span>
+    </script>
+
+    <script id="github-status-logged-in" type="text/template">
+      <a href="<%= html_url %>" target="blank"><img src="<%= avatar_url %>" height="36px" width="36px" alt="" /></a>
+      <span class="logout_button btn btn-small">Log out, <%- name %></span>
+    </script>
+
+    <script id="github-login-form" type="text/template">
+      <form>
+        <h2><img src="img/github-mark.png" height="48px" width="48px" alt="" />Sign in</h2>
+        <label>Choose authentication method</label>
+        <select class="input-block-level github_authtype">
+          <option value="oauth" selected="selected">OAuth</option>
+          <option value="basic">Basic</option>
+        </select>
+        <input class="input-block-level github_token" type="text" placeholder="GitHub OAuth token?" />
+        <input class="input-block-level github_username" type="text" placeholder="GitHub username?" />
+        <input class="input-block-level github_password" type="password" placeholder="GitHub password?" />
+        <span class="btn btn-primary login_button">Login</span>
+        <span class="control-group error login_failed"><span class="help-inline">failed - please retry</span></span>
+        <span class="hide_button btn btn-small">Hide</span>
+      </form>
+    </script>
+
+
+    <script id="group-header-template" type="text/template">
+      <img class="avatar" src="<%= avatar_url %>" height="36px" width="36px" alt="" />
+      <a href="https://github.com/<%= name %>" target="blank"><%- name %></a>
+      <span class="actions">
+        <span class="query_repos"><i class="icon-refresh"></i></span>
+        <span class="loader"><img src="img/loader.gif" width="16px" height="16px" alt="" /></span>
+      </span>
+      <div class="clearfix"></div>
+    </script>
+
+    <script id="repo-header-template" type="text/template">
+      <i class="icon-folder-close"></i><i class="icon-folder-open"></i>
+      <a href="<%= repo_url %>" target="blank"><%- name %></a>
+      <span class="actions">
+        <span class="query_issues"><i class="icon-refresh"></i></span>
+        <span class="loader"><img src="img/loader.gif" width="16px" height="16px" alt="" /></span>
+        <% if (has_issues && open_issues > 0) { %>
+          <a href="<%= open_issues_url %>" target="blank"><span class="badge"><%= open_issues %></span></a>
+        <% } %>
+      </span>
+      <div class="clearfix"></div>
+    </script>
+
+    <script id="issue-template" type="text/template">
+      <a href="<%= issue_url %>" target="blank">#<%= number %></a>: <%- title %>
+      <span class="actions">
+        <% _.each(labels, function(label) { %>
+          <span class="label" style="background-color: #<%= label.color %>;"><%= label.label %></span>
+        <% }) %>
+        <% if (pull_request) { %>
+          <a href="<%= issue_url %>" target="blank"><i class="icon-file" title="Pull request"></i></a>
+        <% } %>
+      </span>
+      <div class="clearfix"></div>
+    </script>
+
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/json3/3.2.4/json3.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
+
+    <script src="js/base64_encode.js"></script>
+    <script src="js/issues_dashboard.js"></script>
+
+    <script src="js/github.js"></script>
+    <script src="js/github_provider.js"></script>
+
+    <script src="config.js"></script>
+  </body>
+</html>
