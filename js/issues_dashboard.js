@@ -215,7 +215,10 @@
       console.debug('RepositoryView.hide_issues() full_name: ' + this.model.get('full_name'));
       this.$('.icon-folder-close').show();
       this.$('.icon-folder-open').hide();
-      this.$('.issuelist').animate({'height': '0px'}, 200);
+      issuelist = this.$('.issuelist');
+      this.$('.issuelist').animate({'height': '0px'}, {speed: 200, queue: false, always: function(){
+        issuelist.hide();
+      }});
       this.issuelist_state = false;
     },
     update_issue_count: function() {
@@ -364,7 +367,10 @@
     },
     hide_repos: function() {
       console.debug('GroupView.hide_repos() group: ' + this.model.get('name'));
-      this.$('.repolist').animate({'height': '0px', 'margin-top': '0px'}, 200);
+      repolist = this.$('.repolist');
+      this.$('.repolist').animate({'height': '0px', 'margin-top': '0px'}, {speed: 200, queue: false, always: function(){
+        repolist.hide();
+      }});
       this.repolist_state = false;
     },
     update_repository_count: function() {
