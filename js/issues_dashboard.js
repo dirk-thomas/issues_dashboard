@@ -15,6 +15,8 @@
    * - number
    * - title
    * - issue_url
+   * - creator
+   * - assignee
    * - pull_request
    * - updated_at
    * - labels[]

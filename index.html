@@ -75,11 +75,14 @@
     </script>
 
     <script id="issue-template" type="text/template">
-      <a href="<%= issue_url %>" target="blank">#<%= number %></a>: <%- title %>
+      <a href="<%= issue_url %>" target="blank" title="<%= creator %>">#<%= number %></a>: <%- title %>
       <span class="actions">
         <% _.each(labels, function(label) { %>
           <span class="label" style="background-color: #<%= label.color %>;"><%= label.label %></span>
         <% }) %>
+        <% if (assignee) { %>
+          <i class="icon-user<% if (assignee_is_me) { %>-blue<% } %>" title="<%= assignee %>"></i>
+        <% } %>
         <% if (pull_request) { %>
           <a href="<%= issue_url %>" target="blank"><i class="icon-file" title="Pull request"></i></a>
         <% } %>

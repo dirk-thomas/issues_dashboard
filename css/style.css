@@ -138,3 +138,8 @@ body {
 .issue .actions {
   float: right;
 }
+
+.icon-user-blue {
+  background-image: url('../img/icon-user-blue.png');
+  background-position: 0px 0px;
+}

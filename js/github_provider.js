@@ -144,7 +144,7 @@
   });
 
 
-  var query_repo_issues = function(github, full_name, issue_collection, complete_callback) {
+  var query_repo_issues = function(github, full_name, user, issue_collection, complete_callback) {
     console.debug('query_repo_issues()');
     github.repoIssues(full_name, function(err, res) {
       if (err) {
@@ -161,6 +161,9 @@
             number: issue.number,
             title: issue.title,
             issue_url: issue.html_url,
+            creator: issue.user.login,
+            assignee: issue.assignee && issue.assignee.login,
+            assignee_is_me: issue.assignee && issue.assignee.login == user.login,
             pull_request: issue.pull_request && issue.pull_request.html_url,
             updated_at: issue.updated_at,
             labels: [],
@@ -347,7 +350,8 @@
         console.debug('_query_repo_issues()');
         var github = github_model.get('github');
         full_name = model.get('full_name');
-        query_repo_issues(github, full_name, issue_collection, complete_callback);
+        user = github_model.get('user');
+        query_repo_issues(github, full_name, user, issue_collection, complete_callback);
       }
 
       this.group_collection = new issues_dashboard_namespace.GroupCollection();
