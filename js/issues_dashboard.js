@@ -280,8 +280,12 @@
    * - id
    * - name
    * - avatar_url
+   * - open_issues (aggregated from all repositories)
    */
   namespace.GroupModel = Backbone.Model.extend({
+    defaults: {
+      'open_issues': 0,
+    },
   });
 
   namespace.GroupCollection = Backbone.Collection.extend({
@@ -308,7 +312,7 @@
       this.repolist_state = null;
 
       this.repository_collection = new namespace.RepositoryCollection();
-      this.listenTo(this.repository_collection, 'add', this.update_repository_count);
+      this.listenTo(this.repository_collection, 'add', this.add_repo_model);
       this.listenTo(this.repository_collection, 'remove', this.update_repository_count);
       this.listenTo(this.repository_collection, 'reset', this.update_repository_count);
       var view = new namespace.RepositoryListView({
@@ -373,6 +377,11 @@
       }});
       this.repolist_state = false;
     },
+    add_repo_model: function (repo_model) {
+      console.debug('GroupView.add_repo_model() group: ' + this.model.get('name'));
+      this.listenTo(repo_model, 'change:open_issues', this.update_issue_count);
+      this.update_repository_count();
+    },
     update_repository_count: function() {
       console.debug('GroupView.update_repository_count() group: ' + this.model.get('name'));
       if (this.repository_collection.length > 0) {
@@ -380,6 +389,15 @@
       } else {
         this.hide_repos();
       }
+      this.update_issue_count();
+    },
+    update_issue_count: function() {
+      console.debug('GroupView.update_issue_count() group: ' + this.model.get('name'));
+      open_issues = 0;
+      this.repository_collection.each(function(repo_model, index) {
+        open_issues += repo_model.get('open_issues')
+      });
+      this.model.set({open_issues: open_issues});
     },
   });
 

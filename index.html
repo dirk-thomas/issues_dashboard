@@ -54,6 +54,9 @@
       <span class="actions">
         <span class="query_repos"><i class="icon-refresh"></i></span>
         <span class="loader"><img src="img/loader.gif" width="16px" height="16px" alt="" /></span>
+        <% if (open_issues > 0) { %>
+          <span class="badge"><%= open_issues %></span>
+        <% } %>
       </span>
       <div class="clearfix"></div>
     </script>
