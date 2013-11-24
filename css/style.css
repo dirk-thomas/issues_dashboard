@@ -152,6 +152,10 @@ body {
   float: right;
 }
 
+.icon-refresh:hover {
+  background-image: url('../img/loader-blue.png');
+  background-position: 0px 0px;
+}
 .icon-user-blue {
   background-image: url('../img/icon-user-blue.png');
   background-position: 0px 0px;
