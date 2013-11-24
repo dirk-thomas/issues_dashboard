@@ -26,7 +26,7 @@
     </script>
 
     <script id="github-status-logged-in" type="text/template">
-      <a href="<%= html_url %>" target="blank"><img src="<%= avatar_url %>" height="36px" width="36px" alt="" /></a>
+      <a href="<%= html_url %>" target="_blank"><img src="<%= avatar_url %>" height="36px" width="36px" alt="" /></a>
       <span class="logout_button btn btn-small">Log out, <%- name %></span>
     </script>
 
@@ -56,19 +56,19 @@
 
     <script id="group-header-template" type="text/template">
       <img class="avatar" src="<%= avatar_url %>" height="36px" width="36px" alt="" />
-      <a href="https://github.com/<%= name %>" target="blank"><%- name %></a>
+      <a href="https://github.com/<%= name %>" target="_blank"><%- name %></a>
       <span class="actions">
         <span class="query_repos"><i class="icon-refresh"></i></span>
         <span class="loader"><img src="img/loader.gif" width="16px" height="16px" alt="" /></span>
         <% if (matched_issue_count > 0) { %>
-          <a href="https://github.com/organizations/<%= name %>/dashboard/issues" target="blank"><span class="badge"
+          <a href="https://github.com/organizations/<%= name %>/dashboard/issues" target="_blank"><span class="badge"
             <% if (matched_issue_count != open_issue_count) { %>
               title="<%= matched_issue_count %> of <%= open_issue_count %>"
             <% } %>
           ><%= matched_issue_count %></span></a>
         <% } %>
         <% if (matched_issue_count == null && open_issue_count > 0) { %>
-          <a href="https://github.com/organizations/<%= name %>/dashboard/issues" target="blank"><span class="badge"><%= open_issue_count %></span></a>
+          <a href="https://github.com/organizations/<%= name %>/dashboard/issues" target="_blank"><span class="badge"><%= open_issue_count %></span></a>
         <% } %>
       </span>
       <div class="clearfix"></div>
@@ -76,26 +76,26 @@
 
     <script id="repo-header-template" type="text/template">
       <i class="icon-folder-close"></i><i class="icon-folder-open"></i>
-      <a href="<%= repo_url %>" target="blank"><%- name %></a>
+      <a href="<%= repo_url %>" target="_blank"><%- name %></a>
       <span class="actions">
         <span class="query_issues"><i class="icon-refresh"></i></span>
         <span class="loader"><img src="img/loader.gif" width="16px" height="16px" alt="" /></span>
         <% if (matched_issue_count > 0) { %>
-          <a href="<%= open_issues_url %>" target="blank"><span class="badge badge-info"
+          <a href="<%= open_issues_url %>" target="_blank"><span class="badge badge-info"
             <% if (matched_issue_count != open_issue_count) { %>
               title="<%= matched_issue_count %> of <%= open_issue_count %>"
             <% } %>
           ><%= matched_issue_count %></span></a>
         <% } %>
         <% if (matched_issue_count == null && open_issue_count > 0) { %>
-          <a href="<%= open_issues_url %>" target="blank"><span class="badge"><%= open_issue_count %></span></a>
+          <a href="<%= open_issues_url %>" target="_blank"><span class="badge"><%= open_issue_count %></span></a>
         <% } %>
       </span>
       <div class="clearfix"></div>
     </script>
 
     <script id="issue-template" type="text/template">
-      <a href="<%= issue_url %>" target="blank" title="<%= creator %>">#<%= number %></a>: <%- title %>
+      <a href="<%= issue_url %>" target="_blank" title="<%= creator %>">#<%= number %></a>: <%- title %>
       <span class="actions">
         <% _.each(labels, function(label) { %>
           <span class="label" style="background-color: #<%= label.color %>;"><%= label.label %></span>
@@ -104,7 +104,7 @@
           <i class="icon-user<% if (assignee_is_me) { %>-blue<% } %>" title="<%= assignee %>"></i>
         <% } %>
         <% if (pull_request) { %>
-          <a href="<%= issue_url %>" target="blank"><i class="icon-file" title="Pull request"></i></a>
+          <a href="<%= issue_url %>" target="_blank"><i class="icon-file" title="Pull request"></i></a>
         <% } %>
       </span>
       <div class="clearfix"></div>
