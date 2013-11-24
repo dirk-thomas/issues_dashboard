@@ -193,7 +193,6 @@
       full_name: repo.full_name,
       repo_url: repo.html_url,
       open_issues_url: repo.html_url + '/issues?milestone=none&state=open',
-      has_issues: repo.has_issues,
       open_issue_count: repo.open_issues,
     };
   }

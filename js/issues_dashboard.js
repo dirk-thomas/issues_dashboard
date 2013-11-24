@@ -146,7 +146,6 @@
    * - full_name
    * - repo_url
    * - open_issues_url
-   * - has_issues
    * - open_issue_count
    * - matched_issue_count (populated by the RepositoryView, aggregated from the collection of IssueModels)
    */
