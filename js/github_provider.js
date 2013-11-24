@@ -194,7 +194,7 @@
       repo_url: repo.html_url,
       open_issues_url: repo.html_url + '/issues?milestone=none&state=open',
       has_issues: repo.has_issues,
-      open_issues: repo.open_issues,
+      open_issue_count: repo.open_issues,
     };
   }
 
@@ -365,6 +365,9 @@
 
       this.listenTo(this.github_model, 'logged_in', this.logged_in);
       this.listenTo(this.github_model, 'logged_out', this.logged_out);
+    },
+    set_filter_model: function(filter_model) {
+      this.group_list_view.set_filter_model(filter_model);
     },
     render: function() {
       console.debug('DashboardView.render()');

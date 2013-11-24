@@ -48,14 +48,27 @@
     </script>
 
 
+    <script id="filter-template" type="text/template">
+      <input type="checkbox" name="assignee_is_me" value="0" id="assignee_is_me" />
+      <label for="assignee_is_me">Filter assigned to me</label>
+    </script>
+
+
     <script id="group-header-template" type="text/template">
       <img class="avatar" src="<%= avatar_url %>" height="36px" width="36px" alt="" />
       <a href="https://github.com/<%= name %>" target="blank"><%- name %></a>
       <span class="actions">
         <span class="query_repos"><i class="icon-refresh"></i></span>
         <span class="loader"><img src="img/loader.gif" width="16px" height="16px" alt="" /></span>
-        <% if (open_issues > 0) { %>
-          <span class="badge"><%= open_issues %></span>
+        <% if (matched_issue_count > 0) { %>
+          <span class="badge"
+            <% if (matched_issue_count != open_issue_count) { %>
+              title="<%= matched_issue_count %> of <%= open_issue_count %>"
+            <% } %>
+          ><%= matched_issue_count %></span>
+        <% } %>
+        <% if (matched_issue_count == null && open_issue_count > 0) { %>
+          <span class="badge"><%= open_issue_count %></span>
         <% } %>
       </span>
       <div class="clearfix"></div>
@@ -67,8 +80,17 @@
       <span class="actions">
         <span class="query_issues"><i class="icon-refresh"></i></span>
         <span class="loader"><img src="img/loader.gif" width="16px" height="16px" alt="" /></span>
-        <% if (has_issues && open_issues > 0) { %>
-          <a href="<%= open_issues_url %>" target="blank"><span class="badge"><%= open_issues %></span></a>
+        <% if (has_issues) { %>
+          <% if (matched_issue_count > 0) { %>
+            <a href="<%= open_issues_url %>" target="blank"><span class="badge badge-info"
+              <% if (matched_issue_count != open_issue_count) { %>
+                title="<%= matched_issue_count %> of <%= open_issue_count %>"
+              <% } %>
+            ><%= matched_issue_count %></span></a>
+          <% } %>
+          <% if (matched_issue_count == null && open_issue_count > 0) { %>
+            <a href="<%= open_issues_url %>" target="blank"><span class="badge"><%= open_issue_count %></span></a>
+          <% } %>
         <% } %>
       </span>
       <div class="clearfix"></div>

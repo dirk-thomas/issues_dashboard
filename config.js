@@ -9,6 +9,7 @@
   $('#main').append(dashboard.render().el);
 
   github = new github_provider.GitHubProvider();
+  github.get_dashboard_view().set_filter_model(dashboard.get_filter_model());
   dashboard.add_provider(github);
 
   // auto-login

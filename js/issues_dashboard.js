@@ -17,11 +17,13 @@
    * - issue_url
    * - creator
    * - assignee
+   * - assignee_is_me
    * - pull_request
    * - updated_at
    * - labels[]
    *   - label
    *   - color
+   *   matches_filter (populated by the IssueView)
    */
   namespace.IssueModel = Backbone.Model.extend({
     initialize: function() {
@@ -60,13 +62,28 @@
     initialize: function() {
       console.debug('IssueView.initialize()');
       this.listenTo(this.model, 'change', this.render);
+      this.listenTo(this.model, 'change:assignee', this.update_filter_match);
       this.listenTo(this.model, 'change_index', this.change_index);
       this.listenTo(this.model, 'destroy', this.remove);
+      this.listenTo(this.options.filter_model, 'change', this.update_filter_match);
+      this.update_filter_match();
     },
     render: function() {
       console.debug('IssueView.render() issue #' + this.model.get('number'));
       this.$el.html(this.template(this.model.toJSON()));
       return this;
+    },
+    update_filter_match: function() {
+      console.debug('IssueView.update_filter_match()');
+      old_matches_filter = this.model.get('matches_filter');
+      matches_filter = this.options.filter_model.match_issue(this.model);
+      if (matches_filter) {
+        this.$el.show();
+      } else {
+        this.$el.hide();
+      }
+      console.debug('IssueView.update_filter_match() ' + this.model.get('matches_filter'));
+      this.model.set({matches_filter: matches_filter});
     },
     change_index: function(model, old_index, new_index) {
       console.debug('IssueView.change_index() issue #' + model.get('number') + ' to index ' + new_index);
@@ -93,7 +110,10 @@
       return this;
     },
     addOne: function(model) {
-      var view = new namespace.IssueView({model: model});
+      var view = new namespace.IssueView({
+        model: model,
+        filter_model: this.options.filter_model,
+      });
       index = this.collection.indexOf(model);
       view_at_index = this._get_element_of_index(index);
       if (view_at_index.length) {
@@ -127,7 +147,8 @@
    * - repo_url
    * - open_issues_url
    * - has_issues
-   * - open_issues
+   * - open_issue_count
+   * - matched_issue_count (populated by the RepositoryView, aggregated from the collection of IssueModels)
    */
   namespace.RepositoryModel = Backbone.Model.extend({
   });
@@ -153,22 +174,39 @@
       this.$el.html('<div class="repo_header"></div>');
       this.listenTo(this.model, 'change', this.render);
       this.listenTo(this.model, 'destroy', this.remove);
-      this.issuelist_state = null;
+      this.issues_queried = false;
+      this.issuelist_folded = true;
 
       this.issue_collection = new namespace.IssueCollection();
-      this.listenTo(this.issue_collection, 'add', this.update_issue_count);
-      this.listenTo(this.issue_collection, 'remove', this.update_issue_count);
-      this.listenTo(this.issue_collection, 'reset', this.update_issue_count);
-      var view = new namespace.IssueListView({collection: this.issue_collection});
+      this.listenTo(this.issue_collection, 'add', this.update_matched_issue_count);
+      this.listenTo(this.issue_collection, 'remove', this.update_matched_issue_count);
+      this.listenTo(this.issue_collection, 'reset', this.update_matched_issue_count);
+      this.listenTo(this.issue_collection, 'change:matches_filter', this.change_matches_filter);
+      var view = new namespace.IssueListView({
+        collection: this.issue_collection,
+        filter_model: this.options.filter_model,
+      });
       this.$el.append(view.render().el);
     },
     render: function() {
       console.debug('RepositoryView.render() full_name: ' + this.model.get('full_name'));
+      // can't use a default value in order to not overwrite values
+      // when models are updated with new models from the provider
+      missing = !this.model.has('matched_issue_count');
+      if (missing) {
+        this.model.set({matched_issue_count: null}, {silent: true});
+      }
       this.$('.repo_header').html(this.template(this.model.toJSON()));
+      if (missing) {
+        this.model.unset('matched_issue_count', {silent: true});
+      }
       this.$('.repo_header .loader').hide();
-      if (this.issue_collection.length == 0) {
+      if (this.issuelist_folded) {
         this.$('.icon-folder-open').hide();
         this.$('.issuelist').hide();
+      } else {
+        this.$('.icon-folder-close').hide();
+        this.$('.issuelist').show();
       }
       return this;
     },
@@ -177,12 +215,12 @@
     },
     toggle_issuelist: function() {
       console.log('RepositoryView.toggle_issuelist() full_name: ' + this.model.get('full_name'));
-      if (this.issuelist_state === null) {
+      if (!this.issues_queried) {
         this.query_issues();
-      } else if (this.issuelist_state) {
-        this.hide_issues();
-      } else {
+      } else if (this.issuelist_folded) {
         this.show_issues();
+      } else {
+        this.hide_issues();
       }
     },
     query_issues: function(event) {
@@ -197,12 +235,16 @@
     query_issues_completed: function() {
       this.$('.repo_header .query_issues').css('display', '');
       this.$('.repo_header .loader').hide();
+      if (!this.issues_queried) {
+        this.show_issues();
+        this.issues_queried = true;
+      }
     },
     show_issues: function() {
       console.debug('RepositoryView.show_issues() full_name: ' + this.model.get('full_name'));
+      this.$('.icon-folder-close').hide();
+      this.$('.icon-folder-open').show();
       if (this.issue_collection.length > 0) {
-        this.$('.icon-folder-close').hide();
-        this.$('.icon-folder-open').show();
         this.$('.issuelist').show();
         height = this.$('.issuelist').css('height', 'auto').height();
         this.$('.issuelist').height(0);
@@ -210,8 +252,8 @@
         this.$('.issuelist').animate({'height': height + 'px'}, {speed: 200, queue: false, always: function(){
           issuelist.height('auto');
         }});
-        this.issuelist_state = true;
       }
+      this.issuelist_folded = false;
     },
     hide_issues: function() {
       console.debug('RepositoryView.hide_issues() full_name: ' + this.model.get('full_name'));
@@ -221,16 +263,31 @@
       this.$('.issuelist').animate({'height': '0px'}, {speed: 200, queue: false, always: function(){
         issuelist.hide();
       }});
-      this.issuelist_state = false;
+      this.issuelist_folded = true;
     },
-    update_issue_count: function() {
-      console.debug('RepositoryView.update_issue_count() full_name: ' + this.model.get('full_name'));
-      this.model.set({open_issues: this.issue_collection.length});
-      if (this.issue_collection.length > 0) {
-        this.show_issues();
+    update_matched_issue_count: function() {
+      console.debug('RepositoryView.update_matched_issue_count() full_name: ' + this.model.get('full_name'));
+      if (this.issue_collection.length) {
+        matched_issue_count = 0;
+        filter_model = this.options.filter_model;
+        this.issue_collection.each(function(issue_model, index) {
+          if (issue_model.get('matches_filter')) {
+            matched_issue_count += 1;
+          }
+        });
+        console.debug('RepositoryView.update_matched_issue_count() full_name: ' + this.model.get('full_name') + ' ' + matched_issue_count);
+        this.model.set({matched_issue_count: matched_issue_count});
       } else {
-        this.hide_issues();
+        console.debug('RepositoryView.update_matched_issue_count() full_name: ' + this.model.get('full_name') + ' reset to null');
+        this.model.set({matched_issue_count: null});
       }
+    },
+    change_matches_filter: function(issue_model) {
+      offset = 1;
+      if (!issue_model.get('matches_filter')) {
+        offset = -1;
+      }
+      this.model.set({matched_issue_count: this.model.get('matched_issue_count') + offset});
     },
   });
 
@@ -250,6 +307,7 @@
     addOne: function(model) {
       var view = new namespace.RepositoryView({
         model: model,
+        filter_model: this.options.filter_model,
         query_repo_issues: this.options.query_repo_issues,
       });
       index = this.collection.indexOf(model);
@@ -282,11 +340,13 @@
    * - id
    * - name
    * - avatar_url
-   * - open_issues (aggregated from all repositories)
+   * - open_issue_count (populated by the GroupView, aggregated from the collection of RepositoryModels)
+   * - matched_issue_count (populated by the GroupView, aggregated from the collection of RepositoryModels)
    */
   namespace.GroupModel = Backbone.Model.extend({
     defaults: {
-      'open_issues': 0,
+      'open_issue_count': 0,
+      'matched_issue_count': null,
     },
   });
 
@@ -314,11 +374,13 @@
       this.repolist_state = null;
 
       this.repository_collection = new namespace.RepositoryCollection();
-      this.listenTo(this.repository_collection, 'add', this.add_repo_model);
-      this.listenTo(this.repository_collection, 'remove', this.update_repository_count);
-      this.listenTo(this.repository_collection, 'reset', this.update_repository_count);
+      this.listenTo(this.repository_collection, 'add', this.add_repo);
+      this.listenTo(this.repository_collection, 'remove', this.remove_repo);
+      this.listenTo(this.repository_collection, 'reset', this.reset_repos);
+      this.listenTo(this.repository_collection, 'change:matched_issue_count', this.update_matched_issue_count);
       var view = new namespace.RepositoryListView({
         collection: this.repository_collection,
+        filter_model: this.options.filter_model,
         query_repo_issues: this.options.query_repo_issues,
       });
       this.$el.append(view.render().el);
@@ -379,27 +441,64 @@
       }});
       this.repolist_state = false;
     },
-    add_repo_model: function (repo_model) {
-      console.debug('GroupView.add_repo_model() group: ' + this.model.get('name'));
-      this.listenTo(repo_model, 'change:open_issues', this.update_issue_count);
-      this.update_repository_count();
+    add_repo: function(repo_model) {
+      console.debug('GroupView.add_repo() group: ' + this.model.get('name') + ' repo ' + repo_model.get('full_name'));
+      this.show_repos();
+
+      count = repo_model.get('open_issue_count');
+      this.model.set({open_issue_count: this.model.get('open_issue_count') + count});
     },
-    update_repository_count: function() {
-      console.debug('GroupView.update_repository_count() group: ' + this.model.get('name'));
+    remove_repo: function(repo_model) {
+      console.debug('GroupView.remove_repo() group: ' + this.model.get('name') + ' repo ' + repo_model.get('full_name'));
+      if (this.repository_collection.length == 0) {
+        this.hide_repos();
+      }
+
+      count = repo_model.get('open_issue_count');
+      this.model.set({open_issue_count: this.model.get('open_issue_count') - count});
+    },
+    reset_repos: function(repo_models) {
+      console.debug('GroupView.reset_repos() group: ' + this.model.get('name'));
       if (this.repository_collection.length > 0) {
         this.show_repos();
       } else {
         this.hide_repos();
       }
-      this.update_issue_count();
+      this.update_open_issue_count();
     },
-    update_issue_count: function() {
-      console.debug('GroupView.update_issue_count() group: ' + this.model.get('name'));
-      open_issues = 0;
+    update_open_issue_count: function() {
+      console.debug('GroupView.update_open_issue_count() group: ' + this.model.get('name'));
+      open_issue_count = 0;
       this.repository_collection.each(function(repo_model, index) {
-        open_issues += repo_model.get('open_issues')
+        open_issue_count += repo_model.get('open_issue_count')
       });
-      this.model.set({open_issues: open_issues});
+      this.model.set({open_issue_count: open_issue_count});
+    },
+    update_matched_issue_count: function(repo_model) {
+      console.debug('GroupView.update_matched_issue_count() group: ' + this.model.get('name'));
+      model_count = this.model.get('matched_issue_count');
+      repo_model_previous_count = repo_model.previous('matched_issue_count');
+      if (model_count != null && repo_model_previous_count != null && typeof repo_model_previous_count != 'undefined') {
+        // update group model only by offset of repo model
+        offset = repo_model.get('matched_issue_count') - repo_model_previous_count;
+        console.debug('GroupView.update_matched_issue_count() group: ' + this.model.get('name') + ' offset ' + offset);
+        this.model.set({matched_issue_count: model_count + offset});
+      } else {
+        // calculate sum of all repo models
+        matched_issue_count = 0;
+        this.repository_collection.each(function(repo_model, index) {
+          count = repo_model.get('matched_issue_count');
+          if (count != null) {
+            //console.debug('GroupView.update_matched_issue_count() repo ' + repo_model.get('full_name') + ' count ' + count);
+            matched_issue_count += count;
+          } else {
+            //console.debug('GroupView.update_matched_issue_count() repo ' + repo_model.get('full_name') + ' "null" ' + count);
+            matched_issue_count += repo_model.get('open_issue_count');
+          }
+        });
+        //console.debug('GroupView.update_matched_issue_count() group: ' + this.model.get('name') + ' all ' + matched_issue_count);
+        this.model.set({matched_issue_count: matched_issue_count});
+      }
     },
   });
 
@@ -412,6 +511,10 @@
       this.listenTo(this.collection, 'reset', this.addAll);
       this.listenTo(this.collection, 'remove', this.removeOne);
     },
+    set_filter_model: function(filter_model) {
+      console.debug('GroupListView.set_filter_model()');
+      this.options.filter_model = filter_model;
+    },
     render: function() {
       console.debug('GroupListView.render()');
       return this;
@@ -423,6 +526,7 @@
     addOne: function(model) {
       var view = new namespace.GroupView({
         model: model,
+        filter_model: this.options.filter_model,
         query_group_repos: this.options.query_group_repos,
         query_repo_issues: this.options.query_repo_issues,
       });
@@ -451,18 +555,71 @@
   });
 
 
+  /*
+   * A filter model has the following attributes:
+   * - assignee_is_me
+   */
+  namespace.FilterModel = Backbone.Model.extend({
+    defaults: {
+      'assignee_is_me': false,
+    },
+    match_issue: function(issue_model) {
+      if (this.get('assignee_is_me')) {
+        console.log('FilterModel.match_issue() assignee_is_me ' + issue_model.get('id'));
+        return issue_model.get('assignee_is_me');
+      } else {
+        console.log('FilterModel.match_issue() all ' + issue_model.get('id'));
+        return true;
+      }
+    }
+  });
+
+  namespace.FilterView = Backbone.View.extend({
+    tagName: 'div',
+    className: 'filter',
+    template: _.template($('#filter-template').html()),
+    events: {
+      'click #assignee_is_me': 'toggle_assignee_is_me',
+    },
+    initialize: function() {
+      console.debug('FilterView.initialize()');
+      this.$el.html(this.template());
+      this.listenTo(this.model, 'change', this.render);
+      this.listenTo(this.model, 'destroy', this.remove);
+    },
+    render: function() {
+      console.debug('FilterView.render()');
+      this.$('.filter').html(this.template(this.model.toJSON()));
+      this.$('#assignee_is_me').prop('checked', this.model.get('assignee_is_me'));
+      return this;
+    },
+    toggle_assignee_is_me: function() {
+      checked = this.$('#assignee_is_me').prop('checked');
+      console.debug('FilterView.toggle_assignee_is_me() ' + checked);
+      this.model.set({assignee_is_me: checked});
+    },
+  });
+
+
   namespace.IssuesDashboardView = Backbone.View.extend({
     tagName: 'div',
-    class: 'issues_dashboard',
+    className: 'issues_dashboard',
     template: _.template($('#issues-dashboard').html()),
     initialize: function() {
       console.debug('IssuesDashboardView.initialize()');
       this.$el.html(this.template());
+      this._filter_model = new namespace.FilterModel();
+      this._filter_view = new namespace.FilterView({model: this._filter_model});
+      this.$('.provider_status').append(this._filter_view.render().el);
       this._providers = [];
     },
     render: function() {
       console.debug('IssuesDashboardView.render()');
       return this;
+    },
+    get_filter_model: function() {
+      console.debug('IssuesDashboardView.get_filter_model()');
+      return this._filter_model;
     },
     add_provider: function(provider) {
       console.log('IssuesDashboardView.add_provider() ' + provider.get_name());

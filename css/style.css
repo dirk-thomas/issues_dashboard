@@ -2,6 +2,19 @@ body {
   background-color: #f5f5f5;
 }
 
+.filter {
+  float: left;
+  line-height: 36px;
+  margin: 0 15px;
+  text-align: left;
+}
+.filter input {
+  margin-top: 0;
+}
+.filter label {
+  display: initial;
+}
+
 .provider_status {
   background: #d3d3d3;
   padding: 10px;
