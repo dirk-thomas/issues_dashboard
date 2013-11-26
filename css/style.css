@@ -13,6 +13,7 @@ body {
 }
 .filter label {
   display: initial;
+  margin-right: 10px;
 }
 
 .provider_status {

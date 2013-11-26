@@ -49,8 +49,14 @@
 
 
     <script id="filter-template" type="text/template">
-      <input type="checkbox" name="assignee_is_me" value="0" id="assignee_is_me" />
-      <label for="assignee_is_me">Filter assigned to me</label>
+      <input type="radio" name="filter_assignee" id="filter_assignee_any" value="any" checked="checked" />
+      <label for="filter_assignee_any">Show all</label>
+      <input type="radio" name="filter_assignee" id="filter_assignee_is_me" value="is_me" />
+      <label for="filter_assignee_is_me">Assigned to me</label>
+      <input type="radio" name="filter_assignee" id="filter_assignee_is_other" value="is_other" />
+      <label for="filter_assignee_is_other">Assigned to other</label>
+      <input type="radio" name="filter_assignee" id="filter_assignee_is_unset" value="is_unset" />
+      <label for="filter_assignee_is_unset">Filter unassigned</label>
     </script>
 
 

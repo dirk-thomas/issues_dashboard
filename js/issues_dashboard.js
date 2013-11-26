@@ -82,7 +82,7 @@
       } else {
         this.$el.hide();
       }
-      console.debug('IssueView.update_filter_match() ' + this.model.get('matches_filter'));
+      console.debug('IssueView.update_filter_match() ' + matches_filter);
       this.model.set({matches_filter: matches_filter});
     },
     change_index: function(model, old_index, new_index) {
@@ -282,6 +282,7 @@
       }
     },
     change_matches_filter: function(issue_model) {
+      console.debug('RepositoryView.change_matches_filter() full_name: ' + this.model.get('full_name') + ' issue #' + issue_model.get('number'));
       offset = 1;
       if (!issue_model.get('matches_filter')) {
         offset = -1;
@@ -560,16 +561,24 @@
    */
   namespace.FilterModel = Backbone.Model.extend({
     defaults: {
-      'assignee_is_me': false,
+      'assignee': 'any',
     },
     match_issue: function(issue_model) {
-      if (this.get('assignee_is_me')) {
-        console.log('FilterModel.match_issue() assignee_is_me ' + issue_model.get('id'));
-        return issue_model.get('assignee_is_me');
-      } else {
-        console.log('FilterModel.match_issue() all ' + issue_model.get('id'));
+      assignee = this.get('assignee');
+      if (assignee == 'any') {
         return true;
+      } else if (assignee == 'is_me') {
+        console.log('FilterModel.match_issue() assignee is me ' + issue_model.get('number'));
+        return issue_model.get('assignee_is_me');
+      } else if (assignee == 'is_other') {
+        console.log('FilterModel.match_issue() assignee is other ' + issue_model.get('number'));
+        return issue_model.get('assignee') != null && !issue_model.get('assignee_is_me');
+      } else if (assignee == 'is_unset') {
+        console.log('FilterModel.match_issue() assignee is unset ' + issue_model.get('number'));
+        return issue_model.get('assignee') == null;
       }
+      console.warn('FilterModel.match_issue() unknown filter assignee value: ' + assignee);
+      return true;
     }
   });
 
@@ -578,7 +587,7 @@
     className: 'filter',
     template: _.template($('#filter-template').html()),
     events: {
-      'click #assignee_is_me': 'toggle_assignee_is_me',
+      'click input': 'change_assignee',
     },
     initialize: function() {
       console.debug('FilterView.initialize()');
@@ -589,13 +598,13 @@
     render: function() {
       console.debug('FilterView.render()');
       this.$('.filter').html(this.template(this.model.toJSON()));
-      this.$('#assignee_is_me').prop('checked', this.model.get('assignee_is_me'));
+      this.$('#filter_assignee_' + this.model.get('assignee')).prop('checked', true);
       return this;
     },
-    toggle_assignee_is_me: function() {
-      checked = this.$('#assignee_is_me').prop('checked');
-      console.debug('FilterView.toggle_assignee_is_me() ' + checked);
-      this.model.set({assignee_is_me: checked});
+    change_assignee: function(event) {
+      value = event.currentTarget.value;
+      console.debug('FilterView.change_assignee() ' + value);
+      this.model.set({assignee: value});
     },
   });
 
