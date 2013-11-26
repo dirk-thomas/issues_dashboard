@@ -162,9 +162,9 @@
             title: issue.title,
             issue_url: issue.html_url,
             creator: issue.user.login,
-            assignee: issue.assignee && issue.assignee.login,
-            assignee_is_me: issue.assignee && issue.assignee.login == user.login,
-            pull_request: issue.pull_request && issue.pull_request.html_url,
+            assignee: issue.assignee ? issue.assignee.login : null,
+            assignee_is_me: issue.assignee ? issue.assignee.login == user.login : false,
+            pull_request: issue.pull_request ? issue.pull_request.html_url : null,
             updated_at: issue.updated_at,
             labels: [],
           }
