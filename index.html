@@ -48,6 +48,26 @@
     </script>
 
 
+    <script id="test-status-not-logged-in" type="text/template">
+      <span class="login_button btn btn-small">Log in</span>
+    </script>
+
+    <script id="test-status-logged-in" type="text/template">
+      Groups: <%= groups %>,
+      Repos: <%= repos %> [<a href="#" class="add_repo_button">+</a>|<a href="#" class="remove_repo_button">-</a>],
+      Issues: <%= issues %> [<a href="#" class="add_issue_button">+</a>|<a href="#" class="remove_issue_button">-</a>]
+      <span class="logout_button btn btn-small">Log out</span>
+    </script>
+
+    <script id="test-login-form" type="text/template">
+      <form>
+        <h2>Sign in</h2>
+        <span class="btn btn-primary login_button">Login</span>
+        <span class="hide_button btn btn-small">Hide</span>
+      </form>
+    </script>
+
+
     <script id="filter-template" type="text/template">
       <input type="radio" name="filter_assignee" id="filter_assignee_any" value="any" checked="checked" />
       <label for="filter_assignee_any">Show all</label>
@@ -127,6 +147,7 @@
 
     <script src="js/github.js"></script>
     <script src="js/github_provider.js"></script>
+    <script src="js/test_provider.js"></script>
 
     <script src="config.js"></script>
   </body>
