@@ -128,12 +128,15 @@
       console.debug('IssueListView.addAll()');
       this.$el.html('');
       this.collection.each(this.addOne, this);
+      this.collection.sort();
     },
     removeOne: function(model, collection, options) {
       console.debug('IssueListView.removeOne() issue #' + model.get('number'));
       this._get_element_of_index(options.index).remove();
     },
     _get_element_of_index: function (index) {
+      // in order for this to work the list of issues added with collection.set(issues)
+      // must in the correct order, meaning newest to oldest
       return this.$('>' + namespace.IssueView.prototype.tagName + ':eq(' + index.toString() + ')');
     }
   });
@@ -173,13 +176,14 @@
       this.$el.html('<div class="repo_header"></div>');
       this.listenTo(this.model, 'change', this.render);
       this.listenTo(this.model, 'destroy', this.remove);
+      this.listenTo(this.model, 'change:open_issue_count', this.open_issue_count_changed);
       this.issues_queried = false;
       this.issuelist_folded = true;
 
       this.issue_collection = new namespace.IssueCollection();
-      this.listenTo(this.issue_collection, 'add', this.update_matched_issue_count);
-      this.listenTo(this.issue_collection, 'remove', this.update_matched_issue_count);
-      this.listenTo(this.issue_collection, 'reset', this.update_matched_issue_count);
+      this.listenTo(this.issue_collection, 'add', this.issue_collection_changed);
+      this.listenTo(this.issue_collection, 'remove', this.issue_collection_changed);
+      this.listenTo(this.issue_collection, 'reset', this.issue_collection_changed);
       this.listenTo(this.issue_collection, 'change:matches_filter', this.change_matches_filter);
       var view = new namespace.IssueListView({
         collection: this.issue_collection,
@@ -263,6 +267,19 @@
         issuelist.hide();
       }});
       this.issuelist_folded = true;
+    },
+    open_issue_count_changed: function() {
+      if (this.issues_queried && this.model.get('open_issue_count') != this.issue_collection.length) {
+        console.debug('RepositoryView.open_issue_count_changed() issue collection length and open_issue_count out of sync: ' + this.issue_collection.length + ' != ' + this.model.get('open_issue_count') + ', query issues')
+        this.query_issues();
+      } else {
+        this.update_matched_issue_count();
+      }
+    },
+    issue_collection_changed: function() {
+      console.debug('RepositoryView.issue_collection_changed() full_name: ' + this.model.get('full_name'));
+      this.model.set('open_issue_count', this.issue_collection.length);
+      this.update_matched_issue_count();
     },
     update_matched_issue_count: function() {
       console.debug('RepositoryView.update_matched_issue_count() full_name: ' + this.model.get('full_name'));
