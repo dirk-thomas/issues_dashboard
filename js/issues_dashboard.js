@@ -59,13 +59,14 @@
     tagName: 'div',
     className: 'issue',
     template: _.template($('#issue-template').html()),
-    initialize: function() {
-      console.debug('IssueView.initialize()');
+    initialize: function(options) {
+      console.debug('IssueView.initialize() issue #' + this.model.get('number'));
+      this._filter_model = options.filter_model;
       this.listenTo(this.model, 'change', this.render);
       this.listenTo(this.model, 'change:assignee', this.update_filter_match);
       this.listenTo(this.model, 'change_index', this.change_index);
       this.listenTo(this.model, 'destroy', this.remove);
-      this.listenTo(this.options.filter_model, 'change', this.update_filter_match);
+      this.listenTo(this._filter_model, 'change', this.update_filter_match);
       this.update_filter_match();
     },
     render: function() {
@@ -76,7 +77,7 @@
     update_filter_match: function() {
       console.debug('IssueView.update_filter_match()');
       old_matches_filter = this.model.get('matches_filter');
-      matches_filter = this.options.filter_model.match_issue(this.model);
+      matches_filter = this._filter_model.match_issue(this.model);
       if (matches_filter) {
         this.$el.show();
       } else {
@@ -98,8 +99,9 @@
   namespace.IssueListView = Backbone.View.extend({
     tagName: 'div',
     className: 'issuelist',
-    initialize: function() {
+    initialize: function(options) {
       console.debug('IssueListView.initialize()');
+      this._filter_model = options.filter_model;
       this.listenTo(this.collection, 'add', this.addOne);
       this.listenTo(this.collection, 'reset', this.addAll);
       this.listenTo(this.collection, 'remove', this.removeOne);
@@ -112,7 +114,7 @@
     addOne: function(model) {
       var view = new namespace.IssueView({
         model: model,
-        filter_model: this.options.filter_model,
+        filter_model: this._filter_model,
       });
       index = this.collection.indexOf(model);
       view_at_index = this._get_element_of_index(index);
@@ -171,8 +173,10 @@
       'click .repo_header': 'toggle_issuelist',
       'click .query_issues': 'query_issues',
     },
-    initialize: function() {
-      console.debug('RepositoryView.initialize()');
+    initialize: function(options) {
+      console.debug('RepositoryView.initialize() full_name: ' + this.model.get('full_name'));
+      this._filter_model = options.filter_model;
+      this._query_repo_issues = options.query_repo_issues;
       this.$el.html('<div class="repo_header"></div>');
       this.listenTo(this.model, 'change', this.render);
       this.listenTo(this.model, 'destroy', this.remove);
@@ -187,7 +191,7 @@
       this.listenTo(this.issue_collection, 'change:matches_filter', this.change_matches_filter);
       var view = new namespace.IssueListView({
         collection: this.issue_collection,
-        filter_model: this.options.filter_model,
+        filter_model: this._filter_model,
       });
       this.$el.append(view.render().el);
     },
@@ -233,7 +237,7 @@
       }
       this.$('.repo_header .query_issues').hide();
       this.$('.repo_header .loader').show();
-      this.options.query_repo_issues(this.model, this.issue_collection, $.proxy(this.query_issues_completed, this));
+      this._query_repo_issues(this.model, this.issue_collection, $.proxy(this.query_issues_completed, this));
     },
     query_issues_completed: function() {
       this.$('.repo_header .query_issues').css('display', '');
@@ -285,7 +289,7 @@
       console.debug('RepositoryView.update_matched_issue_count() full_name: ' + this.model.get('full_name'));
       if (this.issue_collection.length) {
         matched_issue_count = 0;
-        filter_model = this.options.filter_model;
+        filter_model = this._filter_model;
         this.issue_collection.each(function(issue_model, index) {
           if (issue_model.get('matches_filter')) {
             matched_issue_count += 1;
@@ -311,8 +315,10 @@
   namespace.RepositoryListView = Backbone.View.extend({
     tagName: 'div',
     className: 'repolist',
-    initialize: function() {
+    initialize: function(options) {
       console.debug('RepositoryListView.initialize()');
+      this._filter_model = options.filter_model;
+      this._query_repo_issues = options.query_repo_issues;
       this.listenTo(this.collection, 'add', this.addOne);
       this.listenTo(this.collection, 'reset', this.addAll);
       this.listenTo(this.collection, 'remove', this.removeOne);
@@ -324,8 +330,8 @@
     addOne: function(model) {
       var view = new namespace.RepositoryView({
         model: model,
-        filter_model: this.options.filter_model,
-        query_repo_issues: this.options.query_repo_issues,
+        filter_model: this._filter_model,
+        query_repo_issues: this._query_repo_issues,
       });
       index = this.collection.indexOf(model);
       view_at_index = this._get_element_of_index(index);
@@ -383,8 +389,11 @@
       'click .group_header': 'toggle_repolist',
       'click .query_repos': 'query_repos',
     },
-    initialize: function() {
-      console.debug('GroupView.initialize()');
+    initialize: function(options) {
+      console.debug('GroupView.initialize() group: ' + this.model.get('name'));
+      this._filter_model = options.filter_model;
+      this._query_group_repos = options.query_group_repos;
+      this._query_repo_issues = options.query_repo_issues;
       this.$el.html('<div class="group_header"></div>');
       this.listenTo(this.model, 'change', this.render);
       this.listenTo(this.model, 'destroy', this.remove);
@@ -397,8 +406,8 @@
       this.listenTo(this.repository_collection, 'change:matched_issue_count', this.update_matched_issue_count);
       var view = new namespace.RepositoryListView({
         collection: this.repository_collection,
-        filter_model: this.options.filter_model,
-        query_repo_issues: this.options.query_repo_issues,
+        filter_model: this._filter_model,
+        query_repo_issues: this._query_repo_issues,
       });
       this.$el.append(view.render().el);
     },
@@ -431,7 +440,7 @@
       }
       this.$('.group_header .query_repos').hide();
       this.$('.group_header .loader').show();
-      this.options.query_group_repos(this.model, this.repository_collection, $.proxy(this.query_repos_completed, this));
+      this._query_group_repos(this.model, this.repository_collection, $.proxy(this.query_repos_completed, this));
     },
     query_repos_completed: function() {
       this.$('.group_header .query_repos').css('display', '');
@@ -522,15 +531,19 @@
   namespace.GroupListView = Backbone.View.extend({
     tagName: 'div',
     className: 'grouplist',
-    initialize: function() {
+    initialize: function(options) {
       console.debug('GroupListView.initialize()');
+      this._filter_model = null;
+      this._query_groups = options.query_groups;
+      this._query_group_repos = options.query_group_repos;
+      this._query_repo_issues = options.query_repo_issues;
       this.listenTo(this.collection, 'add', this.addOne);
       this.listenTo(this.collection, 'reset', this.addAll);
       this.listenTo(this.collection, 'remove', this.removeOne);
     },
     set_filter_model: function(filter_model) {
       console.debug('GroupListView.set_filter_model()');
-      this.options.filter_model = filter_model;
+      this._filter_model = filter_model;
     },
     render: function() {
       console.debug('GroupListView.render()');
@@ -538,14 +551,14 @@
     },
     query_groups: function() {
       console.log('GroupListView.query_groups()');
-      this.options.query_groups(this.collection)
+      this._query_groups(this.collection)
     },
     addOne: function(model) {
       var view = new namespace.GroupView({
         model: model,
-        filter_model: this.options.filter_model,
-        query_group_repos: this.options.query_group_repos,
-        query_repo_issues: this.options.query_repo_issues,
+        filter_model: this._filter_model,
+        query_group_repos: this._query_group_repos,
+        query_repo_issues: this._query_repo_issues,
       });
       index = this.collection.indexOf(model);
       view_at_index = this._get_element_of_index(index);
