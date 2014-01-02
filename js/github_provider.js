@@ -68,11 +68,17 @@
       }
       return this;
     },
-    show: function() {
+    show: function(event) {
+      if (event) {
+        event.preventDefault();
+      }
       this.render();
       this.$el.show();
     },
-    hide: function() {
+    hide: function(event) {
+      if (event && event.preventDefault) {
+        event.preventDefault();
+      }
       this.$el.hide();
       this.$el.html('');
     },
@@ -96,7 +102,10 @@
     login_data_changed: function() {
       this.$('.login_failed').hide();
     },
-    login: function() {
+    login: function(event) {
+      if (event) {
+        event.preventDefault();
+      }
       console.debug('LoginView.login()');
       this.github_model.login({
         auth: this.$('.github_authtype').val(),
@@ -135,10 +144,12 @@
       }
       return this;
     },
-    login: function() {
+    login: function(event) {
+      event.preventDefault();
       this.login_view.show();
     },
-    logout: function() {
+    logout: function(event) {
+      event.preventDefault();
       this.github_model.logout();
     },
   });

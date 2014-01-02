@@ -10,9 +10,11 @@ body {
 }
 .filter input {
   margin-top: 0;
+  vertical-align: middle;
 }
 .filter label {
   display: initial;
+  font-weight: normal;
   margin-right: 10px;
 }
 
@@ -55,6 +57,12 @@ body {
 }
 .login h2 img {
   margin-right: 0.5em;
+}
+.login input, .login select {
+  margin-bottom: 10px;
+}
+.login .login_failed {
+  color: #a94442;
 }
 
 .login .help-inline {
@@ -128,6 +136,9 @@ body {
   background-color: #d2d2e3;
   cursor: pointer;
 }
+.repo_header a {
+  padding-left: 5px;
+}
 .repo_header .actions {
   float: right;
 }
@@ -139,6 +150,9 @@ body {
 }
 .repo_header .badge {
   margin-left: 5px;
+}
+.repo_header .badge-queried {
+  background-color: #3a87ad;
 }
 
 .issuelist {
@@ -155,11 +169,9 @@ body {
   float: right;
 }
 
-.icon-refresh:hover {
-  background-image: url('../img/loader-blue.png');
-  background-position: 0 0;
+.glyphicon-refresh:hover {
+  color: #3389d9;
 }
-.icon-user-blue {
-  background-image: url('../img/icon-user-blue.png');
-  background-position: 0 0;
+.glyphicon-blue {
+  color: #3389d9;
 }

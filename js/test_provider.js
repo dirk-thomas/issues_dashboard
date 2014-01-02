@@ -50,15 +50,24 @@
       }
       return this;
     },
-    show: function() {
+    show: function(event) {
+      if (event) {
+        event.preventDefault();
+      }
       this.render();
       this.$el.show();
     },
-    hide: function() {
+    hide: function(event) {
+      if (event && event.preventDefault) {
+        event.preventDefault();
+      }
       this.$el.hide();
       this.$el.html('');
     },
-    login: function() {
+    login: function(event) {
+      if (event) {
+        event.preventDefault();
+      }
       console.debug('LoginView.login()');
       this.test_model.login();
     },
@@ -124,10 +133,12 @@
         this.test_model.set({issues: issues - 1});
       }
     },
-    login: function() {
+    login: function(event) {
+      event.preventDefault();
       this.login_view.show();
     },
-    logout: function() {
+    logout: function(event) {
+      event.preventDefault();
       this.test_model.logout();
     },
   });

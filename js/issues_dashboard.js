@@ -209,10 +209,10 @@
       }
       this.$('.repo_header .loader').hide();
       if (this.issuelist_folded) {
-        this.$('.icon-folder-open').hide();
+        this.$('.glyphicon-folder-open').hide();
         this.$('.issuelist').hide();
       } else {
-        this.$('.icon-folder-close').hide();
+        this.$('.glyphicon-folder-close').hide();
         this.$('.issuelist').show();
       }
       return this;
@@ -249,8 +249,8 @@
     },
     show_issues: function() {
       console.debug('RepositoryView.show_issues() full_name: ' + this.model.get('full_name'));
-      this.$('.icon-folder-close').hide();
-      this.$('.icon-folder-open').show();
+      this.$('.glyphicon-folder-close').hide();
+      this.$('.glyphicon-folder-open').show();
       if (this.issue_collection.length > 0) {
         this.$('.issuelist').show();
         var height = this.$('.issuelist').css('height', 'auto').height();
@@ -264,8 +264,8 @@
     },
     hide_issues: function() {
       console.debug('RepositoryView.hide_issues() full_name: ' + this.model.get('full_name'));
-      this.$('.icon-folder-close').show();
-      this.$('.icon-folder-open').hide();
+      this.$('.glyphicon-folder-close').show();
+      this.$('.glyphicon-folder-open').hide();
       var issuelist = this.$('.issuelist');
       this.$('.issuelist').animate({'height': '0px'}, {speed: 200, queue: false, always: function(){
         issuelist.hide();
