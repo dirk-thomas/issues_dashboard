@@ -89,8 +89,6 @@
 
 
     <script id="group-header-template" type="text/template">
-      <img class="avatar" src="<%= avatar_url %>" height="36px" width="36px" alt="" />
-      <a href="https://github.com/<%= name %>" target="_blank"><%- name %></a>
       <span class="actions">
         <span class="query_repos glyphicon glyphicon-refresh"></span>
         <span class="loader"><img src="img/loader.gif" width="16px" height="16px" alt="" /></span>
@@ -105,12 +103,12 @@
           <a href="https://github.com/organizations/<%= name %>/dashboard/issues" target="_blank"><span class="badge"><%= open_issue_count %></span></a>
         <% } %>
       </span>
+      <img class="avatar" src="<%= avatar_url %>" height="36px" width="36px" alt="" />
+      <a href="https://github.com/<%= name %>" target="_blank"><%- name %></a>
       <div class="clearfix"></div>
     </script>
 
     <script id="repo-header-template" type="text/template">
-      <span class="glyphicon glyphicon-folder-close"></span><span class="glyphicon glyphicon-folder-open"></span>
-      <a href="<%= repo_url %>" target="_blank"><%- name %></a>
       <span class="actions">
         <span class="query_issues glyphicon glyphicon-refresh"></span>
         <span class="loader"><img src="img/loader.gif" width="16px" height="16px" alt="" /></span>
@@ -125,6 +123,8 @@
           <a href="<%= open_issues_url %>" target="_blank"><span class="badge"><%= open_issue_count %></span></a>
         <% } %>
       </span>
+      <span class="glyphicon glyphicon-folder-close"></span><span class="glyphicon glyphicon-folder-open"></span>
+      <a href="<%= repo_url %>" target="_blank"><%- name %></a>
       <div class="clearfix"></div>
     </script>
 
