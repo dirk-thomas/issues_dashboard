@@ -182,10 +182,12 @@
           };
           models.push(new issues_dashboard_namespace.RepositoryModel(data));
         }
-        repository_collection.set(models);
-        if (complete_callback) {
-          complete_callback();
-        }
+        setTimeout(function(){
+          repository_collection.set(models);
+          if (complete_callback) {
+            complete_callback();
+          }
+        }, 250);
       }
 
       function _query_repo_issues(model, issue_collection, complete_callback) {
@@ -207,10 +209,12 @@
           };
           models.push(new issues_dashboard_namespace.IssueModel(data));
         }
-        issue_collection.set(models);
-        if (complete_callback) {
-          complete_callback();
-        }
+        setTimeout(function(){
+          issue_collection.set(models);
+          if (complete_callback) {
+            complete_callback();
+          }
+        }, 250);
       }
 
       this.group_collection = new issues_dashboard_namespace.GroupCollection();
