@@ -304,11 +304,17 @@
     },
     change_matches_filter: function(issue_model) {
       console.debug('RepositoryView.change_matches_filter() full_name: ' + this.model.get('full_name') + ' issue #' + issue_model.get('number'));
-      offset = 1;
-      if (!issue_model.get('matches_filter')) {
+      offset = 0;
+      if (issue_model.get('matches_filter')) {
+        console.debug('RepositoryView.change_matches_filter() full_name: ' + this.model.get('full_name') + ' issue #' + issue_model.get('number') + ' increment');
+        offset = 1;
+      } else if (!issue_model.get('matches_filter') && issue_model.previous('matches_filter')) {
+        console.debug('RepositoryView.change_matches_filter() full_name: ' + this.model.get('full_name') + ' issue #' + issue_model.get('number') + ' decrement');
         offset = -1;
       }
-      this.model.set({matched_issue_count: this.model.get('matched_issue_count') + offset});
+      if (offset != 0) {
+        this.model.set({matched_issue_count: this.model.get('matched_issue_count') + offset});
+      }
     },
   });
 
@@ -504,7 +510,9 @@
       console.debug('GroupView.update_matched_issue_count() group: ' + this.model.get('name'));
       model_count = this.model.get('matched_issue_count');
       repo_model_previous_count = repo_model.previous('matched_issue_count');
-      if (model_count != null && repo_model_previous_count != null && typeof repo_model_previous_count != 'undefined') {
+      // can't use previous count since for multiple adds the previous value is the same value which would result in increasing offsets
+      // therefore not using the offset at all but recompute the sum every time
+      if (false && model_count != null && repo_model_previous_count != null && typeof repo_model_previous_count != 'undefined') {
         // update group model only by offset of repo model
         offset = repo_model.get('matched_issue_count') - repo_model_previous_count;
         console.debug('GroupView.update_matched_issue_count() group: ' + this.model.get('name') + ' offset ' + offset);
@@ -518,7 +526,7 @@
             //console.debug('GroupView.update_matched_issue_count() repo ' + repo_model.get('full_name') + ' count ' + count);
             matched_issue_count += count;
           } else {
-            //console.debug('GroupView.update_matched_issue_count() repo ' + repo_model.get('full_name') + ' "null" ' + count);
+            //console.debug('GroupView.update_matched_issue_count() repo ' + repo_model.get('full_name') + ' "null" ' + repo_model.get('open_issue_count'));
             matched_issue_count += repo_model.get('open_issue_count');
           }
         });
