@@ -1,7 +1,7 @@
 /**
  * Provider incorporating GitHub issues
  * into the issues dashboard.
- * 
+ *
  * Copyright (c) 2013, Dirk Thomas
  * Distributed under the BSD 2-Clause license
  * https://github.com/dirk-thomas/issues_dashboard/
@@ -16,7 +16,7 @@
     login: function (options) {
       console.debug('GitHubModel.login()');
       options.debug = debug;
-      github = new github_namespace.GitHub(options);
+      var github = new github_namespace.GitHub(options);
       var self = this;
       github.user(function(err, res) {
         if (err) {
@@ -57,7 +57,7 @@
     },
     render: function() {
       console.debug('LoginView.render()');
-      user = this.github_model.get('user')
+      var user = this.github_model.get('user');
       if (!user) {
         console.debug('LoginView.render() not logged in');
         var tmpl = _.template($("#github-login-form").html());
@@ -123,7 +123,7 @@
     },
     render: function() {
       console.debug('StatusView.render()');
-      user = this.github_model.get('user');
+      var user = this.github_model.get('user');
       if (!user) {
         console.debug('StatusView.render() not logged in');
         var tmpl = _.template($("#github-status-not-logged-in").html());
@@ -153,10 +153,10 @@
           complete_callback();
         }
       } else {
-        models = [];
+        var models = [];
         _(res).each(function(issue) {
           console.debug('query_repo_issues() add issue: #' + issue.number);
-          data = {
+          var data = {
             id: issue.id,
             number: issue.number,
             title: issue.title,
@@ -167,7 +167,7 @@
             pull_request: issue.pull_request ? issue.pull_request.html_url : null,
             updated_at: issue.updated_at,
             labels: [],
-          }
+          };
           _(issue.labels).each(function(label) {
             data.labels.push({
               label: label.name,
@@ -183,7 +183,7 @@
         }
       }
     }, this);
-  }
+  };
 
 
   var convert_repo_data = function(repo) {
@@ -195,7 +195,7 @@
       open_issues_url: repo.html_url + '/issues?milestone=none&state=open',
       open_issue_count: repo.open_issues,
     };
-  }
+  };
 
   var query_user_repos = function(github, repository_collection, complete_callback) {
     console.debug('query_user_repos()');
@@ -217,11 +217,11 @@
         }
         res.sort(compare_by_property_name);
 
-        models = [];
+        var models = [];
         _(res).each(function(repo) {
           if (repo.has_issues) {
             console.debug('query_user_repos() add repo: ' + repo.full_name);
-            data = convert_repo_data(repo);
+            var data = convert_repo_data(repo);
             //repository_collection.add(new issues_dashboard_namespace.RepositoryModel(data), {merge: true});
             models.push(new issues_dashboard_namespace.RepositoryModel(data));
           } else {
@@ -234,7 +234,7 @@
         }
       }
     }, this);
-  }
+  };
 
   var query_org_repos = function(github, org, repository_collection, complete_callback) {
     console.debug('query_org_repos()');
@@ -256,11 +256,11 @@
         }
         res.sort(compare_by_property_name);
 
-        models = [];
+        var models = [];
         _(res).each(function(repo) {
           if (repo.has_issues) {
             console.debug('query_org_repos() add repo: ' + repo.full_name);
-            data = convert_repo_data(repo);
+            var data = convert_repo_data(repo);
             //repository_collection.add(new issues_dashboard_namespace.RepositoryModel(data), {merge: true});
             models.push(new issues_dashboard_namespace.RepositoryModel(data));
           } else {
@@ -273,7 +273,7 @@
         }
       }
     }, this);
-  }
+  };
 
 
   var query_groups = function(github, user, group_collection) {
@@ -283,12 +283,12 @@
         console.error('query_groups() err code: ' + err);
       } else {
         console.debug('query_groups() add user group');
-        data = {
+        var data = {
           id: user.id,
           login: user.login,
           name: user.login,
           avatar_url: user.avatar_url,
-        }
+        };
         res.push(data);
 
         // manually order orgs (and user) alphabetically (not supported by the GitHub API)
@@ -302,21 +302,21 @@
         }
         res.sort(compare_by_property_login);
 
-        models = [];
+        var models = [];
         _(res).each(function(group) {
           console.debug('query_groups() add group: ' + group.login);
-          data = {
+          var data = {
             id: group.id,
             name: group.login,
             avatar_url: group.avatar_url,
-          }
+          };
           //group_collection.add(new issues_dashboard_namespace.GroupModel(data), {merge: true});
           models.push(new issues_dashboard_namespace.GroupModel(data));
         });
         group_collection.set(models);
       }
     }, this);
-  }
+  };
 
 
   namespace.DashboardView = Backbone.View.extend({
@@ -336,8 +336,8 @@
       function _query_group_repos(model, repository_collection, complete_callback) {
         console.debug('_query_group_repos()');
         var github = github_model.get('github');
-        group = model.get('name');
-        user = github_model.get('user');
+        var group = model.get('name');
+        var user = github_model.get('user');
         if (group == user.login) {
           query_user_repos(github, repository_collection, complete_callback);
         } else {
@@ -348,8 +348,8 @@
       function _query_repo_issues(model, issue_collection, complete_callback) {
         console.debug('_query_repo_issues()');
         var github = github_model.get('github');
-        full_name = model.get('full_name');
-        user = github_model.get('user');
+        var full_name = model.get('full_name');
+        var user = github_model.get('user');
         query_repo_issues(github, full_name, user, issue_collection, complete_callback);
       }
 
@@ -399,7 +399,7 @@
     };
 
     this.get_status_view = function() {
-      return this.status_view
+      return this.status_view;
     };
 
     this.get_login_view = function() {

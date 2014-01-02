@@ -2,7 +2,7 @@
 
   debug = false;
   if (!debug) {
-    console.debug = function() {}
+    console.debug = function() {};
   }
 
   dashboard = new issues_dashboard.IssuesDashboardView();
@@ -20,7 +20,7 @@
   /*options = {
     auth: 'oauth',
     token: '',
-  }*/
+  };*/
   // or
   /*options = {
     auth: 'basic',

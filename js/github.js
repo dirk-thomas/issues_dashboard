@@ -1,7 +1,7 @@
 /**
  * JavaScript interface to GitHub API v3.
  * http://developer.github.com/v3/
- * 
+ *
  * Copyright (c) 2013, Dirk Thomas
  * Distributed under the BSD 2-Clause license
  * https://github.com/dirk-thomas/issues_dashboard/
@@ -13,7 +13,7 @@
 
     // All API access is over HTTPS, and accessed from the api.github.com domain.
     // http://developer.github.com/v3/#schema
-    github_api_url = 'https://api.github.com';
+    var github_api_url = 'https://api.github.com';
 
     this.debug = options.debug;
 
@@ -84,8 +84,8 @@
     // http://developer.github.com/v3/#pagination
     function _get_all(path, cb) {
       // use local var since multiple requests might run concurrently
-      var result = []
-      recursive_callback = function(err, res, next_path) {
+      var result = [];
+      var recursive_callback = function(err, res, next_path) {
         if (err) {
           cb(err);
         } else {
@@ -100,7 +100,7 @@
       _get(path, recursive_callback);
     }
 
-    self = this;
+    var self = this;
     // Access API and parse the JSON encoded response
     // http://developer.github.com/v3/#schema
     function _get(path, cb) {
@@ -112,7 +112,7 @@
         console.log('GitHub._get() url: ' + url);
       }
 
-      xhr = new XMLHttpRequest();
+      var xhr = new XMLHttpRequest();
       xhr.open('GET', url);
       //xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 
@@ -124,21 +124,21 @@
         if (this.readyState == 2) {
           if (self.debug) {
             // extract and output rate limit
-            rate_limit = this.getResponseHeader('X-RateLimit-Limit')
-            rate_limit_remaining = this.getResponseHeader('X-RateLimit-Remaining')
+            var rate_limit = this.getResponseHeader('X-RateLimit-Limit');
+            var rate_limit_remaining = this.getResponseHeader('X-RateLimit-Remaining');
             console.log('GitHub._get() rate limit: ' + rate_limit_remaining + ' of ' + rate_limit + ' remaining');
           }
           // extract next link if available
-          link = this.getResponseHeader('Link');
+          var link = this.getResponseHeader('Link');
           if (link) {
-            next_link = link.replace(/.*<(.+)>; rel="next".*/, '$1');
+            var next_link = link.replace(/.*<(.+)>; rel="next".*/, '$1');
             if (next_link.substr(0, github_api_url.length) === github_api_url) {
               this._next_link = next_link.substr(github_api_url.length);
             }
           }
         } else if (this.readyState == 4) {
           if (this.status >= 200 && this.status < 300 || this.status === 304) {
-            res = this.responseText ? JSON.parse(this.responseText) : true;
+            var res = this.responseText ? JSON.parse(this.responseText) : true;
             if (self.debug) {
               console.log('GitHub._get() url: ' + url + ', result keys: ' + Object.keys(res));
             }

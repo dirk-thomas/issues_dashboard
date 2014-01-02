@@ -1,7 +1,7 @@
 /**
  * Provider generating test data
  * into the issues dashboard.
- * 
+ *
  * Copyright (c) 2013, Dirk Thomas
  * Distributed under the BSD 2-Clause license
  * https://github.com/dirk-thomas/issues_dashboard/
@@ -93,35 +93,35 @@
       } else {
         console.debug('StatusView.render() logged in');
         var tmpl = _.template($("#test-status-logged-in").html());
-        groups = this.test_model.get('groups');
-        repos = this.test_model.get('repos');
-        issues = this.test_model.get('issues');
+        var groups = this.test_model.get('groups');
+        var repos = this.test_model.get('repos');
+        var issues = this.test_model.get('issues');
         this.$el.html(tmpl({groups: groups, repos: repos, issues: issues}));
       }
       return this;
     },
     increment_repos: function() {
       console.debug('StatusView.increment_repos()');
-      repos = this.test_model.get('repos');
-      this.test_model.set({repos: repos + 1})
+      var repos = this.test_model.get('repos');
+      this.test_model.set({repos: repos + 1});
     },
     decrement_repos: function() {
       console.debug('StatusView.decrement_repos()');
-      repos = this.test_model.get('repos');
+      var repos = this.test_model.get('repos');
       if (repos > 0) {
-        this.test_model.set({repos: repos - 1})
+        this.test_model.set({repos: repos - 1});
       }
     },
     increment_issues: function() {
       console.debug('StatusView.increment_issues()');
-      issues = this.test_model.get('issues');
-      this.test_model.set({issues: issues + 1})
+      var issues = this.test_model.get('issues');
+      this.test_model.set({issues: issues + 1});
     },
     decrement_issues: function() {
       console.debug('StatusView.decrement_issues()');
-      issues = this.test_model.get('issues');
+      var issues = this.test_model.get('issues');
       if (issues > 0) {
-        this.test_model.set({issues: issues - 1})
+        this.test_model.set({issues: issues - 1});
       }
     },
     login: function() {
@@ -139,18 +139,18 @@
     initialize: function(test_model) {
       console.debug('DashboardView.initialize()');
       this.test_model = test_model;
-      self = this;
+      var self = this;
 
       function _query_groups(group_collection) {
         console.debug('_query_groups()');
-        models = [];
-        for (i = 1; i <= self.test_model.get('groups'); i++) {
+        var models = [];
+        for (var i = 1; i <= self.test_model.get('groups'); i++) {
           console.debug('query_groups() add group');
-          data = {
+          var data = {
             id: 'G' + i,
             name: 'G' + i,
             avatar_url: null,
-          }
+          };
           models.push(new issues_dashboard_namespace.GroupModel(data));
         }
         group_collection.set(models);
@@ -158,17 +158,17 @@
 
       function _query_group_repos(model, repository_collection, complete_callback) {
         console.debug('_query_group_repos()');
-        models = [];
-        for (i = 1; i <= self.test_model.get('repos'); i++) {
+        var models = [];
+        for (var i = 1; i <= self.test_model.get('repos'); i++) {
           console.debug('query_repos() add repo');
-          data = {
+          var data = {
             id: 'R' + i,
             name: 'R' + i,
             full_name: 'R' + i,
             repo_url: '',
             open_issues_url: '',
             open_issue_count: self.test_model.get('issues'),
-          }
+          };
           models.push(new issues_dashboard_namespace.RepositoryModel(data));
         }
         repository_collection.set(models);
@@ -179,10 +179,10 @@
 
       function _query_repo_issues(model, issue_collection, complete_callback) {
         console.debug('_query_repo_issues()');
-        models = [];
-        for (i = self.test_model.get('issues'); i > 0; i--) {
+        var models = [];
+        for (var i = self.test_model.get('issues'); i > 0; i--) {
           console.debug('query_repos() add issue');
-          data = {
+          var data = {
             id: 'I' + i,
             number: i,
             title: 'I' + i,
@@ -193,7 +193,7 @@
             pull_request: i % 2 == 0,
             updated_at: i,
             labels: [],
-          }
+          };
           models.push(new issues_dashboard_namespace.IssueModel(data));
         }
         issue_collection.set(models);
@@ -248,7 +248,7 @@
     };
 
     this.get_status_view = function() {
-      return this.status_view
+      return this.status_view;
     };
 
     this.get_login_view = function() {

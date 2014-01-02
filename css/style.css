@@ -39,7 +39,7 @@ body {
 
 .login {
   display: inline-block;
-  margin: 0px auto;
+  margin: 0 auto;
   width: 410px;
 }
 .login form {
@@ -50,7 +50,7 @@ body {
 }
 .login h2 {
   line-height: 48px;
-  margin-top: 0px;
+  margin-top: 0;
   margin-bottom: 20px;
 }
 .login h2 img {
@@ -67,12 +67,14 @@ body {
 
 .grouplist {
   clear: both;
-  column-count: 4;
   -moz-column-count: 4;
+  -ms-column-count: 4;
   -webkit-column-count: 4;
-  column-gap: 0px;
-  -moz-column-gap: 0px;
-  -webkit-column-gap: 0px;
+  column-count: 4;
+  -moz-column-gap: 0;
+  -ms-column-gap: 0;
+  -webkit-column-gap: 0;
+  column-gap: 0;
 }
 .group {
   background: #e3e3e3;
@@ -88,7 +90,7 @@ body {
 }
 .group_header {
   line-height: 36px;
-  padding: 0px 10px;
+  padding: 0 10px;
 }
 .group_header:hover {
   cursor: pointer;
@@ -155,9 +157,9 @@ body {
 
 .icon-refresh:hover {
   background-image: url('../img/loader-blue.png');
-  background-position: 0px 0px;
+  background-position: 0 0;
 }
 .icon-user-blue {
   background-image: url('../img/icon-user-blue.png');
-  background-position: 0px 0px;
+  background-position: 0 0;
 }

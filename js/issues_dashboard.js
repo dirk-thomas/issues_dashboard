@@ -76,8 +76,8 @@
     },
     update_filter_match: function() {
       console.debug('IssueView.update_filter_match()');
-      old_matches_filter = this.model.get('matches_filter');
-      matches_filter = this._filter_model.match_issue(this.model);
+      var old_matches_filter = this.model.get('matches_filter');
+      var matches_filter = this._filter_model.match_issue(this.model);
       if (matches_filter) {
         this.$el.show();
       } else {
@@ -116,8 +116,8 @@
         model: model,
         filter_model: this._filter_model,
       });
-      index = this.collection.indexOf(model);
-      view_at_index = this._get_element_of_index(index);
+      var index = this.collection.indexOf(model);
+      var view_at_index = this._get_element_of_index(index);
       if (view_at_index.length) {
         console.debug('IssueListView.addOne() issue #' + model.get('number') + ' at index ' + index.toString());
         view_at_index.before(view.render().el);
@@ -199,7 +199,7 @@
       console.debug('RepositoryView.render() full_name: ' + this.model.get('full_name'));
       // can't use a default value in order to not overwrite values
       // when models are updated with new models from the provider
-      missing = !this.model.has('matched_issue_count');
+      var missing = !this.model.has('matched_issue_count');
       if (missing) {
         this.model.set({matched_issue_count: null}, {silent: true});
       }
@@ -253,9 +253,9 @@
       this.$('.icon-folder-open').show();
       if (this.issue_collection.length > 0) {
         this.$('.issuelist').show();
-        height = this.$('.issuelist').css('height', 'auto').height();
+        var height = this.$('.issuelist').css('height', 'auto').height();
         this.$('.issuelist').height(0);
-        issuelist = this.$('.issuelist')
+        var issuelist = this.$('.issuelist');
         this.$('.issuelist').animate({'height': height + 'px'}, {speed: 200, queue: false, always: function(){
           issuelist.height('auto');
         }});
@@ -266,7 +266,7 @@
       console.debug('RepositoryView.hide_issues() full_name: ' + this.model.get('full_name'));
       this.$('.icon-folder-close').show();
       this.$('.icon-folder-open').hide();
-      issuelist = this.$('.issuelist');
+      var issuelist = this.$('.issuelist');
       this.$('.issuelist').animate({'height': '0px'}, {speed: 200, queue: false, always: function(){
         issuelist.hide();
       }});
@@ -274,7 +274,7 @@
     },
     open_issue_count_changed: function() {
       if (this.issues_queried && this.model.get('open_issue_count') != this.issue_collection.length) {
-        console.debug('RepositoryView.open_issue_count_changed() issue collection length and open_issue_count out of sync: ' + this.issue_collection.length + ' != ' + this.model.get('open_issue_count') + ', query issues')
+        console.debug('RepositoryView.open_issue_count_changed() issue collection length and open_issue_count out of sync: ' + this.issue_collection.length + ' != ' + this.model.get('open_issue_count') + ', query issues');
         this.query_issues();
       } else {
         this.update_matched_issue_count();
@@ -288,8 +288,8 @@
     update_matched_issue_count: function() {
       console.debug('RepositoryView.update_matched_issue_count() full_name: ' + this.model.get('full_name'));
       if (this.issue_collection.length) {
-        matched_issue_count = 0;
-        filter_model = this._filter_model;
+        var matched_issue_count = 0;
+        var filter_model = this._filter_model;
         this.issue_collection.each(function(issue_model, index) {
           if (issue_model.get('matches_filter')) {
             matched_issue_count += 1;
@@ -304,7 +304,7 @@
     },
     change_matches_filter: function(issue_model) {
       console.debug('RepositoryView.change_matches_filter() full_name: ' + this.model.get('full_name') + ' issue #' + issue_model.get('number'));
-      offset = 0;
+      var offset = 0;
       if (issue_model.get('matches_filter')) {
         console.debug('RepositoryView.change_matches_filter() full_name: ' + this.model.get('full_name') + ' issue #' + issue_model.get('number') + ' increment');
         offset = 1;
@@ -339,8 +339,8 @@
         filter_model: this._filter_model,
         query_repo_issues: this._query_repo_issues,
       });
-      index = this.collection.indexOf(model);
-      view_at_index = this._get_element_of_index(index);
+      var index = this.collection.indexOf(model);
+      var view_at_index = this._get_element_of_index(index);
       if (view_at_index.length) {
         console.debug('RepositoryListView.addOne() repo ' + model.get('full_name') + ' at index ' + index.toString());
         view_at_index.before(view.render().el);
@@ -456,9 +456,9 @@
       console.debug('GroupView.show_repos() group: ' + this.model.get('name'));
       if (this.repository_collection.length > 0) {
         this.$('.repolist').show();
-        height = this.$('.repolist').css('height', 'auto').height();
+        var height = this.$('.repolist').css('height', 'auto').height();
         this.$('.repolist').height(0);
-        repolist = this.$('.repolist');
+        var repolist = this.$('.repolist');
         this.$('.repolist').animate({'height': height + 'px', 'margin-top': '5px'}, {speed: 200, queue: false, always: function(){
           repolist.height('auto');
         }});
@@ -467,7 +467,7 @@
     },
     hide_repos: function() {
       console.debug('GroupView.hide_repos() group: ' + this.model.get('name'));
-      repolist = this.$('.repolist');
+      var repolist = this.$('.repolist');
       this.$('.repolist').animate({'height': '0px', 'margin-top': '0px'}, {speed: 200, queue: false, always: function(){
         repolist.hide();
       }});
@@ -477,7 +477,7 @@
       console.debug('GroupView.add_repo() group: ' + this.model.get('name') + ' repo ' + repo_model.get('full_name'));
       this.show_repos();
 
-      count = repo_model.get('open_issue_count');
+      var count = repo_model.get('open_issue_count');
       this.model.set({open_issue_count: this.model.get('open_issue_count') + count});
     },
     remove_repo: function(repo_model) {
@@ -486,7 +486,7 @@
         this.hide_repos();
       }
 
-      count = repo_model.get('open_issue_count');
+      var count = repo_model.get('open_issue_count');
       this.model.set({open_issue_count: this.model.get('open_issue_count') - count});
     },
     reset_repos: function(repo_models) {
@@ -500,28 +500,28 @@
     },
     update_open_issue_count: function() {
       console.debug('GroupView.update_open_issue_count() group: ' + this.model.get('name'));
-      open_issue_count = 0;
+      var open_issue_count = 0;
       this.repository_collection.each(function(repo_model, index) {
-        open_issue_count += repo_model.get('open_issue_count')
+        open_issue_count += repo_model.get('open_issue_count');
       });
       this.model.set({open_issue_count: open_issue_count});
     },
     update_matched_issue_count: function(repo_model) {
       console.debug('GroupView.update_matched_issue_count() group: ' + this.model.get('name'));
-      model_count = this.model.get('matched_issue_count');
-      repo_model_previous_count = repo_model.previous('matched_issue_count');
+      var model_count = this.model.get('matched_issue_count');
+      var repo_model_previous_count = repo_model.previous('matched_issue_count');
       // can't use previous count since for multiple adds the previous value is the same value which would result in increasing offsets
       // therefore not using the offset at all but recompute the sum every time
       if (false && model_count != null && repo_model_previous_count != null && typeof repo_model_previous_count != 'undefined') {
         // update group model only by offset of repo model
-        offset = repo_model.get('matched_issue_count') - repo_model_previous_count;
+        var offset = repo_model.get('matched_issue_count') - repo_model_previous_count;
         console.debug('GroupView.update_matched_issue_count() group: ' + this.model.get('name') + ' offset ' + offset);
         this.model.set({matched_issue_count: model_count + offset});
       } else {
         // calculate sum of all repo models
-        matched_issue_count = 0;
+        var matched_issue_count = 0;
         this.repository_collection.each(function(repo_model, index) {
-          count = repo_model.get('matched_issue_count');
+          var count = repo_model.get('matched_issue_count');
           if (count != null) {
             //console.debug('GroupView.update_matched_issue_count() repo ' + repo_model.get('full_name') + ' count ' + count);
             matched_issue_count += count;
@@ -559,7 +559,7 @@
     },
     query_groups: function() {
       console.log('GroupListView.query_groups()');
-      this._query_groups(this.collection)
+      this._query_groups(this.collection);
     },
     addOne: function(model) {
       var view = new namespace.GroupView({
@@ -568,8 +568,8 @@
         query_group_repos: this._query_group_repos,
         query_repo_issues: this._query_repo_issues,
       });
-      index = this.collection.indexOf(model);
-      view_at_index = this._get_element_of_index(index);
+      var index = this.collection.indexOf(model);
+      var view_at_index = this._get_element_of_index(index);
       if (view_at_index.length) {
         console.debug('GroupListView.addOne() group: ' + model.get('name') + ' at index ' + index.toString());
         view_at_index.before(view.render().el);
@@ -602,7 +602,7 @@
       'assignee': 'any',
     },
     match_issue: function(issue_model) {
-      assignee = this.get('assignee');
+      var assignee = this.get('assignee');
       if (assignee == 'any') {
         return true;
       } else if (assignee == 'is_me') {
@@ -640,7 +640,7 @@
       return this;
     },
     change_assignee: function(event) {
-      value = event.currentTarget.value;
+      var value = event.currentTarget.value;
       console.debug('FilterView.change_assignee() ' + value);
       this.model.set({assignee: value});
     },
