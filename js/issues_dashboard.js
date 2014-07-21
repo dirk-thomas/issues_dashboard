@@ -66,7 +66,7 @@
       this.listenTo(this.model, 'change:assignee', this.update_filter_match);
       this.listenTo(this.model, 'change_index', this.change_index);
       this.listenTo(this.model, 'destroy', this.remove);
-      this.listenTo(this._filter_model, 'change', this.update_filter_match);
+      this.listenTo(this._filter_model, 'change:assignee', this.update_filter_match);
       this.update_filter_match();
     },
     render: function() {
@@ -154,6 +154,7 @@
    * - open_issue_count
    * - matched_issue_count (populated by the RepositoryView, aggregated from the collection of IssueModels)
    * - is_starred
+   *   matches_filter (populated by the RepositoryView)
    */
   namespace.RepositoryModel = Backbone.Model.extend({
   });
@@ -180,8 +181,10 @@
       this._query_repo_issues = options.query_repo_issues;
       this.$el.html('<div class="repo_header"></div>');
       this.listenTo(this.model, 'change', this.render);
+      this.listenTo(this.model, 'change:is_starred', this.update_filter_match);
       this.listenTo(this.model, 'destroy', this.remove);
       this.listenTo(this.model, 'change:open_issue_count', this.open_issue_count_changed);
+      this.listenTo(this._filter_model, 'change:starred', this.update_filter_match);
       this.issues_queried = false;
       this.issuelist_folded = true;
 
@@ -195,6 +198,7 @@
         filter_model: this._filter_model,
       });
       this.$el.append(view.render().el);
+      this.update_filter_match();
     },
     render: function() {
       console.debug('RepositoryView.render() full_name: ' + this.model.get('full_name'));
@@ -217,6 +221,18 @@
         this.$('.issuelist').show();
       }
       return this;
+    },
+    update_filter_match: function() {
+      console.debug('RepositoryView.update_filter_match()');
+      var old_matches_filter = this.model.get('matches_filter');
+      var matches_filter = this._filter_model.match_repo(this.model);
+      if (matches_filter) {
+        this.$el.show();
+      } else {
+        this.$el.hide();
+      }
+      console.debug('RepositoryView.update_filter_match() ' + matches_filter);
+      this.model.set({matches_filter: matches_filter});
     },
     skip_event: function(event) {
       event.stopPropagation();
@@ -373,6 +389,7 @@
    * - starred_repos
    * - open_issue_count (populated by the GroupView, aggregated from the collection of RepositoryModels)
    * - matched_issue_count (populated by the GroupView, aggregated from the collection of RepositoryModels)
+   *   matches_filter (populated by the GroupView)
    */
   namespace.GroupModel = Backbone.Model.extend({
     defaults: {
@@ -404,7 +421,9 @@
       this._query_repo_issues = options.query_repo_issues;
       this.$el.html('<div class="group_header"></div>');
       this.listenTo(this.model, 'change', this.render);
+      this.listenTo(this.model, 'change:starred_repos', this.update_filter_match);
       this.listenTo(this.model, 'destroy', this.remove);
+      this.listenTo(this._filter_model, 'change:starred', this.update_filter_match);
       this.repolist_state = null;
 
       this.repository_collection = new namespace.RepositoryCollection();
@@ -427,6 +446,19 @@
         this.$('.repolist').hide();
       }
       return this;
+    },
+    update_filter_match: function() {
+      console.debug('GroupView.update_filter_match()');
+      var old_matches_filter = this.model.get('matches_filter');
+      var matches_filter = this._filter_model.match_group(this.model);
+      if (matches_filter) {
+        this.$el.show();
+      } else {
+        this.$el.hide();
+      }
+      console.debug('GroupView.update_filter_match() ' + matches_filter);
+      this.model.set({matches_filter: matches_filter});
+      this.update_open_issue_count();
     },
     skip_event: function(event) {
       event.stopPropagation();
@@ -479,8 +511,10 @@
       console.debug('GroupView.add_repo() group: ' + this.model.get('name') + ' repo ' + repo_model.get('full_name'));
       this.show_repos();
 
-      var count = repo_model.get('open_issue_count');
-      this.model.set({open_issue_count: this.model.get('open_issue_count') + count});
+      if (this._filter_model.match_repo(repo_model)) {
+        var count = repo_model.get('open_issue_count');
+        this.model.set({open_issue_count: this.model.get('open_issue_count') + count});
+      }
     },
     remove_repo: function(repo_model) {
       console.debug('GroupView.remove_repo() group: ' + this.model.get('name') + ' repo ' + repo_model.get('full_name'));
@@ -488,8 +522,10 @@
         this.hide_repos();
       }
 
-      var count = repo_model.get('open_issue_count');
-      this.model.set({open_issue_count: this.model.get('open_issue_count') - count});
+      if (this._filter_model.match_repo(repo_model)) {
+        var count = repo_model.get('open_issue_count');
+        this.model.set({open_issue_count: this.model.get('open_issue_count') - count});
+      }
     },
     reset_repos: function(repo_models) {
       console.debug('GroupView.reset_repos() group: ' + this.model.get('name'));
@@ -503,8 +539,11 @@
     update_open_issue_count: function() {
       console.debug('GroupView.update_open_issue_count() group: ' + this.model.get('name'));
       var open_issue_count = 0;
+      var filter_model = this._filter_model;
       this.repository_collection.each(function(repo_model, index) {
-        open_issue_count += repo_model.get('open_issue_count');
+        if (filter_model.match_repo(repo_model)) {
+          open_issue_count += repo_model.get('open_issue_count');
+        }
       });
       this.model.set({open_issue_count: open_issue_count});
     },
@@ -516,20 +555,25 @@
       // therefore not using the offset at all but recompute the sum every time
       if (false && model_count != null && repo_model_previous_count != null && typeof repo_model_previous_count != 'undefined') {
         // update group model only by offset of repo model
-        var offset = repo_model.get('matched_issue_count') - repo_model_previous_count;
-        console.debug('GroupView.update_matched_issue_count() group: ' + this.model.get('name') + ' offset ' + offset);
-        this.model.set({matched_issue_count: model_count + offset});
+        if (this._filter_model.match_repo(repo_model)) {
+          var offset = repo_model.get('matched_issue_count') - repo_model_previous_count;
+          console.debug('GroupView.update_matched_issue_count() group: ' + this.model.get('name') + ' offset ' + offset);
+          this.model.set({matched_issue_count: model_count + offset});
+        }
       } else {
         // calculate sum of all repo models
         var matched_issue_count = 0;
+        var filter_model = this._filter_model;
         this.repository_collection.each(function(repo_model, index) {
-          var count = repo_model.get('matched_issue_count');
-          if (count != null) {
-            //console.debug('GroupView.update_matched_issue_count() repo ' + repo_model.get('full_name') + ' count ' + count);
-            matched_issue_count += count;
-          } else {
-            //console.debug('GroupView.update_matched_issue_count() repo ' + repo_model.get('full_name') + ' "null" ' + repo_model.get('open_issue_count'));
-            matched_issue_count += repo_model.get('open_issue_count');
+          if (filter_model.match_repo(repo_model)) {
+            var count = repo_model.get('matched_issue_count');
+            if (count != null) {
+              //console.debug('GroupView.update_matched_issue_count() repo ' + repo_model.get('full_name') + ' count ' + count);
+              matched_issue_count += count;
+            } else {
+              //console.debug('GroupView.update_matched_issue_count() repo ' + repo_model.get('full_name') + ' "null" ' + repo_model.get('open_issue_count'));
+              matched_issue_count += repo_model.get('open_issue_count');
+            }
           }
         });
         //console.debug('GroupView.update_matched_issue_count() group: ' + this.model.get('name') + ' all ' + matched_issue_count);
@@ -602,6 +646,23 @@
   namespace.FilterModel = Backbone.Model.extend({
     defaults: {
       'assignee': 'any',
+      'starred': false,
+    },
+    match_group: function(group_model) {
+      var starred = this.get('starred');
+      if (!starred) {
+        return true;
+      }
+      console.log('FilterModel.match_group() starred ' + group_model.get('name'));
+      return group_model.get('starred_repos').length > 0;
+    },
+    match_repo: function(repo_model) {
+      var starred = this.get('starred');
+      if (!starred) {
+        return true;
+      }
+      console.log('FilterModel.match_repo() starred ' + repo_model.get('name'));
+      return repo_model.get('is_starred');
     },
     match_issue: function(issue_model) {
       var assignee = this.get('assignee');
@@ -627,7 +688,7 @@
     className: 'filter',
     template: _.template($('#filter-template').html()),
     events: {
-      'click input': 'change_assignee',
+      'click input': 'change_filter',
     },
     initialize: function() {
       console.debug('FilterView.initialize()');
@@ -641,10 +702,19 @@
       this.$('#filter_assignee_' + this.model.get('assignee')).prop('checked', true);
       return this;
     },
-    change_assignee: function(event) {
-      var value = event.currentTarget.value;
-      console.debug('FilterView.change_assignee() ' + value);
-      this.model.set({assignee: value});
+    change_filter: function(event) {
+      var name  = event.currentTarget.name;
+      if (name == 'filter_assignee') {
+        var value = event.currentTarget.value;
+        console.debug('FilterView.change_filter() assignee: ' + value);
+        this.model.set({assignee: value});
+      } else if (name == 'filter_starred') {
+        var checked = event.currentTarget.checked;
+        console.debug('FilterView.change_filter() starred: ' + checked);
+        this.model.set({starred: checked});
+      } else {
+        console.warn('FilterView.change_filter() unknown filter name: ' + name);
+    }
     },
   });
 
