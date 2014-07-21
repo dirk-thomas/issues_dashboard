@@ -49,6 +49,14 @@
       });
     };
 
+    // List repositories starred by the authentiticated user
+    // https://developer.github.com/v3/activity/starring/#list-repositories-being-starred
+    this.starredRepos = function(cb) {
+      _get_all('/user/starred', function(err, res) {
+        cb(err, res);
+      });
+    };
+
     // List all issues across all the authenticated user’s visible repositories
     // http://developer.github.com/v3/issues/#list-issues
     this.issues = function(cb) {

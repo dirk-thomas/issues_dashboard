@@ -153,6 +153,7 @@
    * - open_issues_url
    * - open_issue_count
    * - matched_issue_count (populated by the RepositoryView, aggregated from the collection of IssueModels)
+   * - is_starred
    */
   namespace.RepositoryModel = Backbone.Model.extend({
   });
@@ -369,6 +370,7 @@
    * - id
    * - name
    * - avatar_url
+   * - starred_repos
    * - open_issue_count (populated by the GroupView, aggregated from the collection of RepositoryModels)
    * - matched_issue_count (populated by the GroupView, aggregated from the collection of RepositoryModels)
    */

@@ -105,6 +105,9 @@
       </span>
       <img class="avatar" src="<%= avatar_url %>" height="36px" width="36px" alt="" />
       <a href="https://github.com/<%= name %>" target="_blank"><%- name %></a>
+      <% if (starred_repos.length > 0) { %>
+        <span class="glyphicon glyphicon-star"></span>
+      <% } %>
       <div class="clearfix"></div>
     </script>
 
@@ -125,6 +128,9 @@
       </span>
       <span class="glyphicon glyphicon-folder-close"></span><span class="glyphicon glyphicon-folder-open"></span>
       <a href="<%= repo_url %>" target="_blank"><%- name %></a>
+      <% if (is_starred) { %>
+        <span class="glyphicon glyphicon-star"></span>
+      <% } %>
       <div class="clearfix"></div>
     </script>
 

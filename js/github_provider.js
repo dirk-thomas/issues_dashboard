@@ -205,10 +205,11 @@
       repo_url: repo.html_url,
       open_issues_url: repo.html_url + '/issues?milestone=none&state=open',
       open_issue_count: repo.open_issues,
+      is_starred: false,
     };
   };
 
-  var query_user_repos = function(github, repository_collection, complete_callback) {
+  var query_user_repos = function(github, group_model, repository_collection, complete_callback) {
     console.debug('query_user_repos()');
     github.userRepos(function(err, res) {
       if (err) {
@@ -233,6 +234,9 @@
           if (repo.has_issues) {
             console.debug('query_user_repos() add repo: ' + repo.full_name);
             var data = convert_repo_data(repo);
+            if (group_model.get('starred_repos').indexOf(data.name) != -1) {
+              data.is_starred = true;
+            }
             //repository_collection.add(new issues_dashboard_namespace.RepositoryModel(data), {merge: true});
             models.push(new issues_dashboard_namespace.RepositoryModel(data));
           } else {
@@ -247,9 +251,10 @@
     }, this);
   };
 
-  var query_org_repos = function(github, org, repository_collection, complete_callback) {
+  var query_org_repos = function(github, org_model, repository_collection, complete_callback) {
     console.debug('query_org_repos()');
-    github.orgRepos(org, function(err, res) {
+    org_name = org_model.get('name');
+    github.orgRepos(org_name, function(err, res) {
       if (err) {
         console.error('query_org_repos() err code: ' + err);
         if (complete_callback) {
@@ -272,6 +277,9 @@
           if (repo.has_issues) {
             console.debug('query_org_repos() add repo: ' + repo.full_name);
             var data = convert_repo_data(repo);
+            if (org_model.get('starred_repos').indexOf(data.name) != -1) {
+              data.is_starred = true;
+            }
             //repository_collection.add(new issues_dashboard_namespace.RepositoryModel(data), {merge: true});
             models.push(new issues_dashboard_namespace.RepositoryModel(data));
           } else {
@@ -293,38 +301,57 @@
       if (err) {
         console.error('query_groups() err code: ' + err);
       } else {
-        console.debug('query_groups() add user group');
-        var data = {
-          id: user.id,
-          login: user.login,
-          name: user.login,
-          avatar_url: user.avatar_url,
-        };
-        res.push(data);
+        github.starredRepos(function(err, res_starred) {
+          if (err) {
+            console.error('query_groups() err code for starred repos: ' + err);
+          } else {
+            console.debug('query_groups() add user group');
+            var data = {
+              id: user.id,
+              login: user.login,
+              name: user.login,
+              avatar_url: user.avatar_url,
+            };
+            res.push(data);
 
-        // manually order orgs (and user) alphabetically (not supported by the GitHub API)
-        // since we want to use collection.set()
-        function compare_by_property_login(a, b) {
-          a = a.login.toLowerCase();
-          b = b.login.toLowerCase();
-          if (a < b) return -1;
-          if (a > b) return 1;
-          return 0;
-        }
-        res.sort(compare_by_property_login);
+            // manually order orgs (and user) alphabetically (not supported by the GitHub API)
+            // since we want to use collection.set()
+            function compare_by_property_login(a, b) {
+              a = a.login.toLowerCase();
+              b = b.login.toLowerCase();
+              if (a < b) return -1;
+              if (a > b) return 1;
+              return 0;
+            }
+            res.sort(compare_by_property_login);
 
-        var models = [];
-        _(res).each(function(group) {
-          console.debug('query_groups() add group: ' + group.login);
-          var data = {
-            id: group.id,
-            name: group.login,
-            avatar_url: group.avatar_url,
-          };
-          //group_collection.add(new issues_dashboard_namespace.GroupModel(data), {merge: true});
-          models.push(new issues_dashboard_namespace.GroupModel(data));
-        });
-        group_collection.set(models);
+            function get_starred_repos(res_starred, group_name) {
+              console.debug('get_starred_repos() for group: ' + group_name);
+              repos = []
+              _(res_starred).each(function(repo) {
+                if (repo.full_name.indexOf(group_name + '/') == 0) {
+                  console.debug('get_starred_repos() add starred repo: ' + repo.name);
+                  repos.push(repo.name);
+                }
+              });
+              return repos;
+            }
+
+            var models = [];
+            _(res).each(function(group) {
+              console.debug('query_groups() add group: ' + group.login);
+              var data = {
+                id: group.id,
+                name: group.login,
+                avatar_url: group.avatar_url,
+                starred_repos: get_starred_repos(res_starred, group.login),
+              };
+              //group_collection.add(new issues_dashboard_namespace.GroupModel(data), {merge: true});
+              models.push(new issues_dashboard_namespace.GroupModel(data));
+            });
+            group_collection.set(models);
+          }
+        }, this);
       }
     }, this);
   };
@@ -350,9 +377,9 @@
         var group = model.get('name');
         var user = github_model.get('user');
         if (group == user.login) {
-          query_user_repos(github, repository_collection, complete_callback);
+          query_user_repos(github, model, repository_collection, complete_callback);
         } else {
-          query_org_repos(github, group, repository_collection, complete_callback);
+          query_org_repos(github, model, repository_collection, complete_callback);
         }
       }
 
