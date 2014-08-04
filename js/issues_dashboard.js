@@ -67,6 +67,7 @@
       this.listenTo(this.model, 'change_index', this.change_index);
       this.listenTo(this.model, 'destroy', this.remove);
       this.listenTo(this._filter_model, 'change:assignee', this.update_filter_match);
+      this.listenTo(this._filter_model, 'change:age', this.update_filter_match);
       this.update_filter_match();
     },
     render: function() {
@@ -642,11 +643,14 @@
   /*
    * A filter model has the following attributes:
    * - assignee_is_me
+   * - starred
+   * - age (in milliseconds)
    */
   namespace.FilterModel = Backbone.Model.extend({
     defaults: {
       'assignee': 'any',
       'starred': false,
+      'age': 0,
     },
     match_group: function(group_model) {
       var starred = this.get('starred');
@@ -665,6 +669,13 @@
       return repo_model.get('is_starred');
     },
     match_issue: function(issue_model) {
+      var age = this.get('age');
+      if (age != 0) {
+        if (Date.now() - age > issue_model.get('updated_at')) {
+          console.log('FilterModel.match_issue() filter by age ' + issue_model.get('number'));
+          return false;
+        }
+      }
       var assignee = this.get('assignee');
       if (assignee == 'any') {
         return true;
@@ -688,7 +699,7 @@
     className: 'filter',
     template: _.template($('#filter-template').html()),
     events: {
-      'click input': 'change_filter',
+      'change input': 'change_filter',
     },
     initialize: function() {
       console.debug('FilterView.initialize()');
@@ -712,9 +723,13 @@
         var checked = event.currentTarget.checked;
         console.debug('FilterView.change_filter() starred: ' + checked);
         this.model.set({starred: checked});
+      } else if (name == 'filter_age_days') {
+        var value = event.currentTarget.value;
+        console.debug('FilterView.change_filter() age days: ' + value);
+        this.model.set({age: value * 24 * 60 * 60 * 1000});
       } else {
         console.warn('FilterView.change_filter() unknown filter name: ' + name);
-    }
+      }
     },
   });
 

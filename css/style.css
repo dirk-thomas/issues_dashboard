@@ -17,6 +17,13 @@ body {
   font-weight: normal;
   margin-right: 10px;
 }
+.filter input[name=filter_age_days] {
+  line-height: normal;
+  width: 3em;
+}
+.filter label[for=filter_age_days] {
+  margin-right: 0;
+}
 
 .provider_status {
   background: #d3d3d3;

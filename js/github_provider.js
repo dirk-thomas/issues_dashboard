@@ -167,6 +167,34 @@
         var models = [];
         _(res).each(function(issue) {
           console.debug('query_repo_issues() add issue: #' + issue.number);
+          function iso8601toDate(value) {
+            var regexp_string = /(\d\d\d\d)(-)?(\d\d)(-)?(\d\d)(T)?(\d\d)(:)?(\d\d)(:)?(\d\d)(\.\d+)?(Z|([+-])(\d\d)(:)?(\d\d))/;
+            var regexp = new RegExp(regexp_string);
+            if (!value.toString().match(regexp)) {
+              console.error('iso8601toDate() can not parse timestamp: ' + value);
+              return value;
+            }
+            var date = new Date();
+            var d = value.match(regexp);
+            date.setUTCDate(1);
+            date.setUTCFullYear(parseInt(d[1], 10));
+            date.setUTCMonth(parseInt(d[3], 10) - 1);
+            date.setUTCDate(parseInt(d[5], 10));
+            date.setUTCHours(parseInt(d[7], 10));
+            date.setUTCMinutes(parseInt(d[9], 10));
+            date.setUTCSeconds(parseInt(d[11], 10));
+            if (d[12]) {
+              date.setUTCMilliseconds(parseFloat(d[12]) * 1000);
+            } else {
+              date.setUTCMilliseconds(0);
+            }
+            if (d[13] != 'Z') {
+              var offset = (d[15] * 60) + parseInt(d[17], 10);
+              offset *= ((d[14] == '-') ? -1 : 1);
+              date.setTime(date.getTime() - offset * 60 * 1000);
+            }
+            return date;
+          }
           var data = {
             id: issue.id,
             number: issue.number,
@@ -176,7 +204,7 @@
             assignee: issue.assignee ? issue.assignee.login : null,
             assignee_is_me: issue.assignee ? issue.assignee.login == user.login : false,
             pull_request: issue.pull_request ? issue.pull_request.html_url : null,
-            updated_at: issue.updated_at,
+            updated_at: iso8601toDate(issue.updated_at),
             labels: [],
           };
           _(issue.labels).each(function(label) {
@@ -327,7 +355,7 @@
 
             function get_starred_repos(res_starred, group_name) {
               console.debug('get_starred_repos() for group: ' + group_name);
-              repos = []
+              repos = [];
               _(res_starred).each(function(repo) {
                 if (repo.full_name.indexOf(group_name + '/') == 0) {
                   console.debug('get_starred_repos() add starred repo: ' + repo.name);
