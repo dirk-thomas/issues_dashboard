@@ -8,10 +8,18 @@ It does not require to run a web server since the HTML page uses JS to talk dire
 How to run it
 -------------
 
-Clone the repository.
-Open the index.html file using a file:// url.
+You can either use it directly from the GitHub page: http://dirk-thomas.github.io/issues_dashboard/
+
+Or you can clone the repository and open the index.html file using a file:// url.
 
 How to automate the login
 -------------------------
 
 You can automate the login by adding your credentials (either an OAuth token or the username and password) to the config.js file.
+
+You should only do that in a local workspace and never commit your credentials to a publically readable repository.
+
+What scopes should the OAuth token grant access to?
+---------------------------------------------------
+
+The OAuth token should grant the scope `repo` in order to list all repositories of the user as well as related organization units.
