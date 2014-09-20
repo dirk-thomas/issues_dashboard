@@ -271,11 +271,11 @@
       this.$('.glyphicon-folder-open').show();
       if (this.issue_collection.length > 0) {
         this.$('.issuelist').show();
-        var height = this.$('.issuelist').css('height', 'auto').height();
-        this.$('.issuelist').height(0);
+        var height = this.$('.issuelist').css('height', 'auto').css('height');
+        this.$('.issuelist').css('height', 0);
         var issuelist = this.$('.issuelist');
         this.$('.issuelist').animate({'height': height + 'px'}, {speed: 200, queue: false, always: function(){
-          issuelist.height('auto');
+          issuelist.css('height', 'auto');
         }});
       }
       this.issuelist_folded = false;
@@ -491,11 +491,11 @@
       console.debug('GroupView.show_repos() group: ' + this.model.get('name'));
       if (this.repository_collection.length > 0) {
         this.$('.repolist').show();
-        var height = this.$('.repolist').css('height', 'auto').height();
-        this.$('.repolist').height(0);
+        var height = this.$('.repolist').css('height', 'auto').css('height');
+        this.$('.repolist').css('height', 0);
         var repolist = this.$('.repolist');
         this.$('.repolist').animate({'height': height + 'px', 'margin-top': '5px'}, {speed: 200, queue: false, always: function(){
-          repolist.height('auto');
+          repolist.css('height', 'auto');
         }});
         this.repolist_state = true;
       }
