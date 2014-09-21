@@ -35,7 +35,8 @@ body {
   line-height: 36px;
   margin: 0 15px;
 }
-.status img {
+.status img,
+.status span {
   margin-right: 1em;
 }
 

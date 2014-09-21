@@ -427,6 +427,7 @@
       this.$el.html('<div class="group_header"></div>');
       this.listenTo(this.model, 'change', this.render);
       this.listenTo(this.model, 'change:starred_repos', this.update_filter_match);
+      this.listenTo(this.model, 'change:starred_repos', this.update_starred_repos);
       this.listenTo(this.model, 'destroy', this.remove);
       this.listenTo(this._filter_model, 'change:starred', this.update_filter_match);
       this.repolist_state = null;
@@ -588,6 +589,14 @@
         //console.debug('GroupView.update_matched_issue_count() group: ' + this.model.get('name') + ' all ' + matched_issue_count);
         this.model.set({matched_issue_count: matched_issue_count});
       }
+    },
+    update_starred_repos: function() {
+      console.debug('GroupView.update_starred_repos() group: ' + this.model.get('name'));
+      var starred_repos = this.model.get('starred_repos');
+      this.repository_collection.each(function(repo_model, index) {
+        is_starred = starred_repos.indexOf(repo_model.get('name')) != -1;
+        repo_model.set({is_starred: is_starred});
+      });
     },
   });
 

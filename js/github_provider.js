@@ -35,6 +35,10 @@
       this.clear();
       this.trigger('logged_out');
     },
+    refresh_groups: function() {
+      console.log('GitHubModel.refresh_groups()');
+      this.trigger('refresh_groups');
+    },
   });
 
 
@@ -123,6 +127,7 @@
     events: {
       'click .login_button': 'login',
       'click .logout_button': 'logout',
+      'click .query_groups': 'refresh_groups',
     },
     initialize: function(github_model, login_view) {
       console.debug('StatusView.initialize()');
@@ -151,6 +156,9 @@
     logout: function(event) {
       event.preventDefault();
       this.github_model.logout();
+    },
+    refresh_groups: function(event) {
+      this.github_model.refresh_groups();
     },
   });
 
@@ -430,6 +438,7 @@
 
       this.listenTo(this.github_model, 'logged_in', this.logged_in);
       this.listenTo(this.github_model, 'logged_out', this.logged_out);
+      this.listenTo(this.github_model, 'refresh_groups', this.refresh_groups);
     },
     set_filter_model: function(filter_model) {
       this.group_list_view.set_filter_model(filter_model);
@@ -445,6 +454,10 @@
     logged_out: function() {
       console.debug('DashboardView.logged_out()');
       this.group_collection.reset();
+    },
+    refresh_groups: function() {
+      console.debug('DashboardView.refresh_groups()');
+      this.group_list_view.query_groups();
     },
   });
 
