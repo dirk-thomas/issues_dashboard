@@ -551,11 +551,15 @@
         }
       });
       this.model.set({open_issue_count: open_issue_count});
+      this.update_matched_issue_count();
     },
     update_matched_issue_count: function(repo_model) {
       console.debug('GroupView.update_matched_issue_count() group: ' + this.model.get('name'));
       var model_count = this.model.get('matched_issue_count');
-      var repo_model_previous_count = repo_model.previous('matched_issue_count');
+      var repo_model_previous_count = null;
+      if (repo_model) {
+        repo_model.previous('matched_issue_count');
+      }
       // can't use previous count since for multiple adds the previous value is the same value which would result in increasing offsets
       // therefore not using the offset at all but recompute the sum every time
       if (false && model_count != null && repo_model_previous_count != null && typeof repo_model_previous_count != 'undefined') {
