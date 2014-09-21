@@ -263,6 +263,10 @@
       if (!this.issues_queried) {
         this.show_issues();
         this.issues_queried = true;
+        if (!this.issue_collection.length) {
+          // manually trigger model update when no issues are found
+          this.issue_collection_changed();
+        }
       }
     },
     show_issues: function() {
@@ -305,7 +309,7 @@
     },
     update_matched_issue_count: function() {
       console.debug('RepositoryView.update_matched_issue_count() full_name: ' + this.model.get('full_name'));
-      if (this.issue_collection.length) {
+      if (this.issue_collection.length || this.issues_queried) {
         var matched_issue_count = 0;
         var filter_model = this._filter_model;
         this.issue_collection.each(function(issue_model, index) {
