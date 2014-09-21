@@ -60,9 +60,12 @@
     </script>
 
     <script id="test-status-logged-in" type="text/template">
-      Groups: <%= groups %>,
-      Repos: <%= repos %> [<a href="#" class="add_repo_button">+</a>|<a href="#" class="remove_repo_button">-</a>],
-      Issues: <%= issues %> [<a href="#" class="add_issue_button">+</a>|<a href="#" class="remove_issue_button">-</a>]
+      <span>
+        Groups: <%= groups %> [<a href="#" class="add_group_button">+</a>|<a href="#" class="remove_group_button">-</a>],
+        Repos: <%= repos %> [<a href="#" class="add_repo_button">+</a>|<a href="#" class="remove_repo_button">-</a>],
+        Issues: <%= issues %> [<a href="#" class="add_issue_button">+</a>|<a href="#" class="remove_issue_button">-</a>]
+      </span>
+      <span class="query_groups glyphicon glyphicon-refresh" title="Refresh groups"></span>
       <div class="btn-group btn-group-sm">
         <button class="logout_button btn btn-default">Log out</button>
       </div>

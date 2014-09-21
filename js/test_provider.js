@@ -24,6 +24,10 @@
       this.logged_in = false;
       this.trigger('logged_out');
     },
+    refresh_groups: function() {
+      console.log('TestModel.refresh_groups()');
+      this.trigger('refresh_groups');
+    },
   });
 
 
@@ -78,12 +82,15 @@
     tagName: 'div',
     className: 'status',
     events: {
+      'click .add_group_button': 'increment_groups',
+      'click .remove_group_button': 'decrement_groups',
       'click .add_repo_button': 'increment_repos',
       'click .remove_repo_button': 'decrement_repos',
       'click .add_issue_button': 'increment_issues',
       'click .remove_issue_button': 'decrement_issues',
       'click .login_button': 'login',
       'click .logout_button': 'logout',
+      'click .query_groups': 'refresh_groups',
     },
     initialize: function(test_model, login_view) {
       console.debug('StatusView.initialize()');
@@ -108,6 +115,18 @@
         this.$el.html(tmpl({groups: groups, repos: repos, issues: issues}));
       }
       return this;
+    },
+    increment_groups: function() {
+      console.debug('StatusView.increment_groups()');
+      var groups = this.test_model.get('groups');
+      this.test_model.set({groups: groups + 1});
+    },
+    decrement_groups: function() {
+      console.debug('StatusView.decrement_groups()');
+      var groups = this.test_model.get('groups');
+      if (groups > 0) {
+        this.test_model.set({groups: groups - 1});
+      }
     },
     increment_repos: function() {
       console.debug('StatusView.increment_repos()');
@@ -141,6 +160,9 @@
       event.preventDefault();
       this.test_model.logout();
     },
+    refresh_groups: function(event) {
+      this.test_model.refresh_groups();
+    },
   });
 
 
@@ -161,7 +183,13 @@
             id: 'G' + i,
             name: 'G' + i,
             avatar_url: null,
+            starred_repos: [],
           };
+          for (var j = 1; j <= self.test_model.get('repos'); j++) {
+            if (j % 3 == 0) {
+              data['starred_repos'].push('R' + j)
+            }
+          }
           models.push(new issues_dashboard_namespace.GroupModel(data));
         }
         group_collection.set(models);
@@ -179,6 +207,7 @@
             repo_url: '',
             open_issues_url: '',
             open_issue_count: self.test_model.get('issues'),
+            is_starred: i % 3 == 0,
           };
           models.push(new issues_dashboard_namespace.RepositoryModel(data));
         }
@@ -228,6 +257,7 @@
 
       this.listenTo(this.test_model, 'logged_in', this.logged_in);
       this.listenTo(this.test_model, 'logged_out', this.logged_out);
+      this.listenTo(this.test_model, 'refresh_groups', this.refresh_groups);
     },
     set_filter_model: function(filter_model) {
       this.group_list_view.set_filter_model(filter_model);
@@ -243,6 +273,10 @@
     logged_out: function() {
       console.debug('DashboardView.logged_out()');
       this.group_collection.reset();
+    },
+    refresh_groups: function() {
+      console.debug('DashboardView.refresh_groups()');
+      this.group_list_view.query_groups();
     },
   });
 
