@@ -1,6 +1,6 @@
 (function($) {
 
-  window.debug = false;
+  window.debug = url('?debug') !== null;
   if (!window.debug) {
     console.debug = function() {};
   }
