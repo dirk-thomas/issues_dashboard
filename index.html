@@ -81,20 +81,20 @@
 
 
     <script id="filter-template" type="text/template">
-      <input type="radio" name="filter_assignee" id="filter_assignee_any" value="any" checked="checked" />
+      <input type="radio" name="filter_assignee" id="filter_assignee_any" value="any"<% if (assignee == 'any') { print(' checked="checked"') } %>/>
       <label for="filter_assignee_any">Show all</label>
-      <input type="radio" name="filter_assignee" id="filter_assignee_is_me" value="is_me" />
+      <input type="radio" name="filter_assignee" id="filter_assignee_is_me" value="is_me"<% if (assignee == 'is_me') { print(' checked="checked"') } %>/>
       <label for="filter_assignee_is_me">Assigned to me</label>
-      <input type="radio" name="filter_assignee" id="filter_assignee_is_other" value="is_other" />
+      <input type="radio" name="filter_assignee" id="filter_assignee_is_other" value="is_other"<% if (assignee == 'is_other') { print(' checked="checked"') } %>/>
       <label for="filter_assignee_is_other">Assigned to other</label>
-      <input type="radio" name="filter_assignee" id="filter_assignee_is_unset" value="is_unset" />
+      <input type="radio" name="filter_assignee" id="filter_assignee_is_unset" value="is_unset"<% if (assignee == 'is_unset') { print(' checked="checked"') } %>/>
       <label for="filter_assignee_is_unset">Filter unassigned</label>
 
-      <input type="checkbox" name="filter_starred" id="filter_starred" />
+      <input type="checkbox" name="filter_starred" id="filter_starred"<% if (starred) { print(' checked="checked"') } %>/>
       <label for="filter_starred">Filter starred</label>
 
       <label for="filter_age_days">Filter recently modified</label>
-      <input type="number" name="filter_age_days" min="0" value="0" /> days
+      <input type="number" name="filter_age_days" min="0" value="<%= age_days %>" /> days
     </script>
 
 

@@ -443,6 +443,7 @@
         query_repo_issues: this._query_repo_issues,
       });
       this.$el.append(view.render().el);
+      this.update_filter_match();
     },
     render: function() {
       console.debug('GroupView.render() group: ' + this.model.get('name'));
@@ -708,7 +709,21 @@
       }
       console.warn('FilterModel.match_issue() unknown filter assignee value: ' + assignee);
       return true;
-    }
+    },
+    persist: function() {
+      console.debug('FilterModel.persist()');
+      localStorage.setItem('filterModel', JSON.stringify(this.toJSON()));
+    },
+    restore: function() {
+      console.debug('FilterModel.restore()');
+      var string_data = localStorage.getItem('filterModel');
+      if (string_data) {
+        var data = JSON.parse(string_data);
+        this.set(data);
+        return true;
+      }
+      return false;
+    },
   });
 
   namespace.FilterView = Backbone.View.extend({
@@ -720,15 +735,23 @@
     },
     initialize: function() {
       console.debug('FilterView.initialize()');
-      this.$el.html(this.template());
+      this.$el.html(this.template(this._get_render_data()));
       this.listenTo(this.model, 'change', this.render);
+      this.listenTo(this.model, 'change', this.persist);
       this.listenTo(this.model, 'destroy', this.remove);
     },
     render: function() {
       console.debug('FilterView.render()');
-      this.$('.filter').html(this.template(this.model.toJSON()));
-      this.$('#filter_assignee_' + this.model.get('assignee')).prop('checked', true);
+      this.$('.filter').html(this.template(this._get_render_data()));
       return this;
+    },
+    _get_render_data: function() {
+      var data = this.model.toJSON();
+      data['age_days'] = Math.round(Number(data['age']) / (24 * 60 * 60 * 1000));
+      return data;
+    },
+    persist: function() {
+      this.model.persist();
     },
     change_filter: function(event) {
       var name  = event.currentTarget.name;
@@ -759,6 +782,7 @@
       console.debug('IssuesDashboardView.initialize()');
       this.$el.html(this.template());
       this._filter_model = new namespace.FilterModel();
+      this._filter_model.restore();
       this._filter_view = new namespace.FilterView({model: this._filter_model});
       this.$('.provider_status').append(this._filter_view.render().el);
       this._providers = [];
