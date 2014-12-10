@@ -18,6 +18,7 @@
    * - creator
    * - assignee
    * - assignee_is_me
+   * - milestone
    * - pull_request
    * - updated_at
    * - labels[]

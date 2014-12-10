@@ -164,6 +164,9 @@
         <% if (pull_request) { %>
           <a href="<%= issue_url %>" target="_blank"><span class="glyphicon glyphicon-file" title="Pull request"></span></a>
         <% } %>
+        <% if (milestone) { %>
+          <span class="glyphicon glyphicon-time" title="Milestone: <%= milestone %>"></span>
+        <% } %>
       </span>
       <div class="clearfix"></div>
     </script>

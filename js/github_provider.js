@@ -211,6 +211,7 @@
             creator: issue.user.login,
             assignee: issue.assignee ? issue.assignee.login : null,
             assignee_is_me: issue.assignee ? issue.assignee.login == user.login : false,
+            milestone: issue.milestone ? issue.milestone.title : null,
             pull_request: issue.pull_request ? issue.pull_request.html_url : null,
             updated_at: iso8601toDate(issue.updated_at),
             labels: [],
@@ -239,7 +240,7 @@
       name: repo.name,
       full_name: repo.full_name,
       repo_url: repo.html_url,
-      open_issues_url: repo.html_url + '/issues?milestone=none&state=open',
+      open_issues_url: repo.html_url + '/issues?state=open',
       open_issue_count: repo.open_issues,
       is_starred: false,
     };
