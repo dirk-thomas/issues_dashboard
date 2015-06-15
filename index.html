@@ -95,6 +95,9 @@
 
       <label for="filter_age_days">Filter recently modified</label>
       <input type="number" name="filter_age_days" min="0" value="<%= age_days %>" /> days
+
+      <label for="filter_milestones" title="'*': all, '+': any with a milestone, '': any without a milestone, 'foo bar': any matching a milestone from the space separated list">Filter by milestone</label>
+      <input type="text" name="filter_milestones" value="<%= milestones %>" />
     </script>
 
 

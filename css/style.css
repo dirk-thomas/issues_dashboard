@@ -24,6 +24,14 @@ body {
 .filter label[for=filter_age_days] {
   margin-right: 0;
 }
+.filter input[name=filter_milestones] {
+  line-height: normal;
+  width: 10em;
+}
+.filter label[for=filter_milestones] {
+  margin-left: 10px;
+  margin-right: 0;
+}
 
 .provider_status {
   background: #d3d3d3;

@@ -69,6 +69,7 @@
       this.listenTo(this.model, 'destroy', this.remove);
       this.listenTo(this._filter_model, 'change:assignee', this.update_filter_match);
       this.listenTo(this._filter_model, 'change:age', this.update_filter_match);
+      this.listenTo(this._filter_model, 'change:milestones', this.update_filter_match);
       this.update_filter_match();
     },
     render: function() {
@@ -664,12 +665,14 @@
    * - assignee_is_me
    * - starred
    * - age (in milliseconds)
+   * - milestones
    */
   namespace.FilterModel = Backbone.Model.extend({
     defaults: {
       'assignee': 'any',
       'starred': false,
       'age': 0,
+      'milestones': '*',
     },
     match_group: function(group_model) {
       var starred = this.get('starred');
@@ -696,19 +699,49 @@
         }
       }
       var assignee = this.get('assignee');
-      if (assignee == 'any') {
-        return true;
-      } else if (assignee == 'is_me') {
-        console.log('FilterModel.match_issue() assignee is me ' + issue_model.get('number'));
-        return issue_model.get('assignee_is_me');
-      } else if (assignee == 'is_other') {
-        console.log('FilterModel.match_issue() assignee is other ' + issue_model.get('number'));
-        return issue_model.get('assignee') != null && !issue_model.get('assignee_is_me');
-      } else if (assignee == 'is_unset') {
-        console.log('FilterModel.match_issue() assignee is unset ' + issue_model.get('number'));
-        return issue_model.get('assignee') == null;
+      if (assignee != 'any') {
+        if (assignee == 'is_me') {
+          console.log('FilterModel.match_issue() assignee is me ' + issue_model.get('number'));
+          if (!issue_model.get('assignee_is_me')) {
+            return false;
+          }
+        } else if (assignee == 'is_other') {
+          console.log('FilterModel.match_issue() assignee is other ' + issue_model.get('number'));
+          if (issue_model.get('assignee') === null || issue_model.get('assignee_is_me')) {
+            return false;
+          }
+        } else if (assignee == 'is_unset') {
+          console.log('FilterModel.match_issue() assignee is unset ' + issue_model.get('number'));
+          if (issue_model.get('assignee') !== null) {
+            return false;
+          }
+        } else {
+          console.warn('FilterModel.match_issue() unknown filter assignee value: ' + assignee);
+        }
       }
-      console.warn('FilterModel.match_issue() unknown filter assignee value: ' + assignee);
+      var milestones = this.get('milestones');
+      if (milestones != '*') {
+        if (milestones == '+') {
+          console.log('FilterModel.match_issue() with a milestone ' + issue_model.get('milestone'));
+          if (!issue_model.get('milestone')) {
+            return false;
+          }
+        } else if (milestones === '') {
+          console.log('FilterModel.match_issue() with no milestone ' + issue_model.get('milestone'));
+          if (issue_model.get('milestone')) {
+            return false;
+          }
+        } else {
+          console.log('FilterModel.match_issue() contains milestone ' + issue_model.get('milestone'));
+          if (!issue_model.get('milestone')) {
+            return false;
+          }
+          milestones = milestones.split(' ');
+          if (milestones.indexOf(issue_model.get('milestone')) === -1) {
+            return false;
+          }
+        }
+      }
       return true;
     },
     persist: function() {
@@ -768,6 +801,10 @@
         var value = event.currentTarget.value;
         console.debug('FilterView.change_filter() age days: ' + value);
         this.model.set({age: value * 24 * 60 * 60 * 1000});
+      } else if (name == 'filter_milestones') {
+        var value = event.currentTarget.value;
+        console.debug('FilterView.change_filter() milestone: ' + value);
+        this.model.set({milestones: value});
       } else {
         console.warn('FilterView.change_filter() unknown filter name: ' + name);
       }
