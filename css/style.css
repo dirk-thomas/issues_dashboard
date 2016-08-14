@@ -223,7 +223,13 @@ body {
 .issue .actions {
   float: right;
 }
+.issue .label {
+  color: #333333;
+}
 
+.glyphicon {
+  position: static;
+}
 .glyphicon-refresh:hover {
   color: #3389d9;
 }
