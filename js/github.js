@@ -168,12 +168,6 @@
         }
         // OAuth2 Token (sent in a header)
         xhr.setRequestHeader('Authorization', 'token '+ options.token);
-      } else if (options.auth == 'basic') {
-        if (!options.username || !options.password) {
-          cb(new Error('Auth type "' + options.auth + '" requires "username" and "password" arguments'));
-        }
-        // Basic Authentication
-        xhr.setRequestHeader('Authorization', 'Basic ' + base64_encode(options.username + ':' + options.password));
       } else {
         cb(new Error('Unknown auth type "' + options.auth + '"'));
       }

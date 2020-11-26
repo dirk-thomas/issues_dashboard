@@ -15,7 +15,7 @@ Or you can clone the repository and open the index.html file using a file:// url
 How to automate the login
 -------------------------
 
-You can automate the login by adding your credentials (either an OAuth token or the username and password) to the config.js file.
+You can automate the login by adding your OAuth token into the config.js file.
 
 You should only do that in a local workspace and never commit your credentials to a publically readable repository.
 

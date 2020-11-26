@@ -48,9 +48,6 @@
     events: {
       'click .login_button': 'login',
       'click .hide_button': 'hide',
-      'change .github_authtype': 'autotype_changed',
-      'change .github_username': 'login_data_changed',
-      'change .github_password': 'login_data_changed',
       'change .github_token': 'login_data_changed',
     },
     initialize: function(github_model) {
@@ -66,7 +63,7 @@
         console.debug('LoginView.render() not logged in');
         var tmpl = _.template($("#github-login-form").html());
         this.$el.html(tmpl());
-        this.autotype_changed();
+        this.$('.login_failed').hide();
       } else {
         this.hide();
       }
@@ -90,19 +87,6 @@
       console.debug('LoginView.login_failed()');
       this.$('.login_failed').show();
     },
-    autotype_changed: function() {
-      console.debug('LoginView.autotype_changed()');
-      if (this.$('.github_authtype').val() == 'oauth') {
-        this.$('.github_username').hide();
-        this.$('.github_password').hide();
-        this.$('.github_token').show();
-      } else {
-        this.$('.github_username').show();
-        this.$('.github_password').show();
-        this.$('.github_token').hide();
-      }
-      this.$('.login_failed').hide();
-    },
     login_data_changed: function() {
       this.$('.login_failed').hide();
     },
@@ -112,10 +96,8 @@
       }
       console.debug('LoginView.login()');
       this.github_model.login({
-        auth: this.$('.github_authtype').val(),
+        auth: 'oauth',
         token: this.$('.github_token').val(),
-        username: this.$('.github_username').val(),
-        password: this.$('.github_password').val(),
       });
     },
   });

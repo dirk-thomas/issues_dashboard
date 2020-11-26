@@ -20,14 +20,8 @@
   /*var options = {
     auth: 'oauth',
     token: '',
-  };*/
-  // or
-  /*var options = {
-    auth: 'basic',
-    username: '',
-    password: '',
-  }*/
-  //github.login(options);
+  };
+  github.login(options);*/
 
   //test.login();
 
